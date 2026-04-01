@@ -4,7 +4,7 @@ const now = moment();
 
 // ═══ LECTURE CONFIG ═══
 const settingsFile = app.vault.getAbstractFileByPath("07 - Config/Vault Settings.md");
-let cfg = { branches: true, formations: true, monthly: true, quarterly: true, energy: true, standup: true, projects: true, habitudes: true };
+let cfg = { branches: true, formations: true, monthly: true, quarterly: true, yearly: true, energy: true, standup: true, projects: true, habitudes: true, progressbar: true, ultime: true, routines: true, activity: true };
 if (settingsFile) {
   const sMeta = app.metadataCache.getFileCache(settingsFile);
   if (sMeta?.frontmatter?.modules) cfg = { ...cfg, ...sMeta.frontmatter.modules };
@@ -30,6 +30,7 @@ const toCreate = [
 ];
 if (cfg.monthly) toCreate.push({ path: `04 - Journal/Monthly/${now.format('YYYY-MM')}`, template: "Monthly" });
 if (cfg.quarterly) toCreate.push({ path: `04 - Journal/Quarterly/${now.format('YYYY')}-Q${Q}`, template: "Quarterly" });
+if (cfg.yearly) toCreate.push({ path: `04 - Journal/Yearly/${now.format('YYYY')}`, template: "Yearly" });
 
 for (const item of toCreate) {
   try {
@@ -48,9 +49,12 @@ const twoWeeksAgo = tp.date.now("YYYY-MM-DD", -14);
 const weekLink = tp.date.now("YYYY-[W]ww");
 const monthLink = tp.date.now("YYYY-MM");
 const dayLabel = tp.date.now("dddd DD MMMM YYYY");
+const dayOfMonth = now.date();
+const daysInMonth = now.daysInMonth();
+const dayOfYear = now.dayOfYear();
+const daysInYear = now.isLeapYear() ? 366 : 365;
 
 // ═══ SUPPRESSION POST-GÉNÉRATION ═══
-// On attend que le fichier soit créé, puis on supprime les sections désactivées
 setTimeout(async () => {
   const file = app.vault.getAbstractFileByPath(tp.file.path(true));
   if (!file) return;
@@ -60,11 +64,14 @@ setTimeout(async () => {
     content = content.replace(re, '\n');
   };
   if (!cfg.energy) removeSection('ENERGY');
+  if (!cfg.progressbar) removeSection('PROGRESSBAR');
+  if (!cfg.ultime) removeSection('ULTIME');
   if (!cfg.branches) removeSection('BRANCHES');
   if (!cfg.projects) removeSection('PROJECTS');
   if (!cfg.formations) removeSection('FORMATIONS');
+  if (!cfg.routines) removeSection('ROUTINES');
   if (!cfg.standup) removeSection('STANDUP');
-  // Nettoyer les marqueurs restants
+  if (!cfg.activity) removeSection('ACTIVITY');
   content = content.replace(/%%(?:BEGIN|END)_\w+%%\n?/g, '');
   await app.vault.modify(file, content);
 }, 500);
@@ -83,6 +90,12 @@ tags: [daily]
 # <% dayLabel %>
 
 > [[Daily - <% yesterday %>|← Hier]] | [[Daily - <% tomorrow %>|Demain →]] | [[<% weekLink %>|📅 Semaine]] | [[<% monthLink %>|📆 Mois]] | [[00 - Dashboard/Dashboard|📊 Dashboard]]
+
+%%BEGIN_PROGRESSBAR%%
+
+> 📅 Mois : `$= "█".repeat(Math.round(<% dayOfMonth %>/<% daysInMonth %>*20)) + "░".repeat(20-Math.round(<% dayOfMonth %>/<% daysInMonth %>*20))` <% dayOfMonth %>/<% daysInMonth %> | 📆 Année : `$= "█".repeat(Math.round(<% dayOfYear %>/<% daysInYear %>*20)) + "░".repeat(20-Math.round(<% dayOfYear %>/<% daysInYear %>*20))` <% dayOfYear %>/<% daysInYear %>
+
+%%END_PROGRESSBAR%%
 
 %%BEGIN_ENERGY%%
 ---
@@ -134,6 +147,16 @@ WHERE !completed
 SORT file.name ASC
 LIMIT 15
 ```
+
+%%BEGIN_ULTIME%%
+---
+
+## ⚡ Tâche ultime du jour
+
+> LA tâche que tu dois absolument terminer aujourd'hui. Une seule.
+
+- [ ] #pro
+%%END_ULTIME%%
 
 ---
 
@@ -249,6 +272,23 @@ if (formations.length === 0) {
 - [ ] #formation
 %%END_FORMATIONS%%
 
+%%BEGIN_ROUTINES%%
+---
+
+## 🎮 Routines du jour
+
+### 📖 Lecture en cours
+- Livre / article :
+- Pages / temps :
+
+### 🏃 Sport / Activité
+- Type :
+- Durée :
+
+### 🎯 Autre
+-
+%%END_ROUTINES%%
+
 ---
 
 ## 🔥 Blockers & Problèmes
@@ -316,3 +356,26 @@ LIMIT 15
 
 ### Perso
 -
+
+%%BEGIN_ACTIVITY%%
+---
+
+## 📝 Activité du jour
+
+### Notes modifiées
+
+```dataview
+LIST
+WHERE dateformat(file.mtime, "yyyy-MM-dd") = "<% tp.date.now("YYYY-MM-DD") %>" AND this.file.name != file.name
+SORT file.mtime DESC
+LIMIT 20
+```
+
+### Notes créées
+
+```dataview
+LIST
+WHERE dateformat(file.ctime, "yyyy-MM-dd") = "<% tp.date.now("YYYY-MM-DD") %>" AND this.file.name != file.name
+SORT file.ctime DESC
+```
+%%END_ACTIVITY%%

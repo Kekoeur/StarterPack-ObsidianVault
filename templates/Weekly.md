@@ -1,17 +1,55 @@
+<%*
+const moment = window.moment;
+const weekStr = tp.date.now("YYYY-[W]ww");
+const year = tp.date.now("YYYY");
+const Q = Math.ceil((moment().month() + 1) / 3);
+const quarterStr = `${year}-Q${Q}`;
+const monthStr = tp.date.now("YYYY-MM");
+const startOfWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
+const endOfWeek = moment().endOf('isoWeek').format('YYYY-MM-DD');
+const prevWeek = moment().subtract(1, 'week').format('YYYY-[W]ww');
+const nextWeek = moment().add(1, 'week').format('YYYY-[W]ww');
+const startLabel = moment().startOf('isoWeek').format('DD MMM');
+const endLabel = moment().endOf('isoWeek').format('DD MMM');
+
+// ═══ LECTURE CONFIG ═══
+const settingsFile = app.vault.getAbstractFileByPath("07 - Config/Vault Settings.md");
+let cfg = { branches: true, formations: true, energy: true, projects: true };
+if (settingsFile) {
+  const sMeta = app.metadataCache.getFileCache(settingsFile);
+  if (sMeta?.frontmatter?.modules) cfg = { ...cfg, ...sMeta.frontmatter.modules };
+}
+
+setTimeout(async () => {
+  const file = app.vault.getAbstractFileByPath(tp.file.path(true));
+  if (!file) return;
+  let content = await app.vault.read(file);
+  const removeSection = (marker) => {
+    const re = new RegExp(`\n*%%BEGIN_${marker}%%[\\s\\S]*?%%END_${marker}%%\n*`, 'g');
+    content = content.replace(re, '\n');
+  };
+  if (!cfg.energy) removeSection('ENERGY');
+  if (!cfg.branches) removeSection('BRANCHES');
+  if (!cfg.formations) removeSection('FORMATIONS');
+  if (!cfg.projects) removeSection('PROJECTS');
+  content = content.replace(/%%(?:BEGIN|END)_\w+%%\n?/g, '');
+  await app.vault.modify(file, content);
+}, 500);
+-%>
 ---
 type: weekly
-week: 2026-W14
-year: 2026
-quarter: "[[2026-Q2]]"
-month: "[[2026-04]]"
-start: 2026-03-30
-end: 2026-04-05
+week: <% weekStr %>
+year: <% year %>
+quarter: "[[<% quarterStr %>]]"
+month: "[[<% monthStr %>]]"
+start: <% startOfWeek %>
+end: <% endOfWeek %>
 tags: [weekly]
 ---
 
-# 📆 2026-W14
+# 📆 <% weekStr %>
 
-> Du 30 mars au 05 avr. | [[2026-W13|← Sem. précédente]] | [[2026-W15|Sem. suivante →]] | [[2026-04|📆 Mois]] | [[2026-Q2|📊 Trimestre]] | [[00 - Dashboard/Dashboard|Dashboard]]
+> Du <% startLabel %> au <% endLabel %> | [[<% prevWeek %>|← Sem. précédente]] | [[<% nextWeek %>|Sem. suivante →]] | [[<% monthStr %>|📆 Mois]] | [[<% quarterStr %>|📊 Trimestre]] | [[00 - Dashboard/Dashboard|Dashboard]]
 
 ---
 
@@ -25,17 +63,18 @@ TABLE WITHOUT ID
   length(filter(file.tasks, (t) => t.completed)) AS "✅",
   length(filter(file.tasks, (t) => !t.completed AND !contains(t.text, "#close"))) AS "⬜"
 FROM "04 - Journal/Daily"
-WHERE week = link("2026-W14")
+WHERE week = link("<% weekStr %>")
 SORT date ASC
 ```
 
+%%BEGIN_ENERGY%%
 ---
 
 ## 🧠 Énergie & Focus de la semaine
 
 ```dataviewjs
 const pages = dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "2026-W14");
+  .where(p => p.week && p.week.path === "<% weekStr %>");
 
 const energyMap = { "High": 3, "Medium": 2, "Low": 1 };
 const energies = pages.where(p => p.energy).map(p => energyMap[p.energy] || 0);
@@ -56,6 +95,7 @@ dv.table(["Jour", "Énergie", "Focus"],
   ])
 );
 ```
+%%END_ENERGY%%
 
 ---
 
@@ -66,7 +106,7 @@ dv.table(["Jour", "Énergie", "Focus"],
 ```dataview
 TASK
 FROM "04 - Journal/Weekly"
-WHERE file.name = "2026-W13"
+WHERE file.name = "<% prevWeek %>"
   AND !completed AND !contains(text, "#close")
   AND contains(text, "#pro")
 ```
@@ -76,7 +116,7 @@ WHERE file.name = "2026-W13"
 ```dataview
 TASK
 FROM "04 - Journal/Weekly"
-WHERE file.name = "2026-W13"
+WHERE file.name = "<% prevWeek %>"
   AND !completed AND !contains(text, "#close")
   AND contains(text, "#perso")
 ```
@@ -92,6 +132,7 @@ WHERE file.name = "2026-W13"
 ### 🧍 Perso
 - [ ] #perso
 
+%%BEGIN_BRANCHES%%
 ---
 
 ## 🔀 MR de la semaine
@@ -100,12 +141,13 @@ WHERE file.name = "2026-W13"
 dv.table(["MR", "Projet", "Statut", "MAJ"],
   dv.pages('"01 - Projects"')
     .where(p => p.type === "branch-doc"
-      && p.updated >= dv.date("2026-03-30")
-      && p.updated <= dv.date("2026-04-05"))
+      && p.updated >= dv.date("<% startOfWeek %>")
+      && p.updated <= dv.date("<% endOfWeek %>"))
     .sort(p => p.updated, "desc")
     .map(p => [p.file.link, p.project, p.status, p.updated])
 );
 ```
+%%END_BRANCHES%%
 
 ---
 
@@ -113,7 +155,7 @@ dv.table(["MR", "Projet", "Statut", "MAJ"],
 
 ```dataviewjs
 for (let page of dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "2026-W14")
+  .where(p => p.week && p.week.path === "<% weekStr %>")
   .sort(p => p.date, "asc")) {
 
   const content = await dv.io.load(page.file.path);
@@ -125,6 +167,7 @@ for (let page of dv.pages('"04 - Journal/Daily"')
 }
 ```
 
+%%BEGIN_FORMATIONS%%
 ---
 
 ## 📚 Formation de la semaine
@@ -156,7 +199,7 @@ if (formations.length === 0) {
 
 ```dataviewjs
 const pages = dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "2026-W14");
+  .where(p => p.week && p.week.path === "<% weekStr %>");
 
 let found = false;
 for (let page of pages.sort(p => p.date, "asc")) {
@@ -169,7 +212,9 @@ for (let page of pages.sort(p => p.date, "asc")) {
 }
 if (!found) dv.paragraph("*Aucune session cette semaine.*");
 ```
+%%END_FORMATIONS%%
 
+%%BEGIN_PROJECTS%%
 ---
 
 ## 🚀 Projets actifs
@@ -183,6 +228,7 @@ FROM "01 - Projects"
 WHERE status = "active"
 SORT file.mtime DESC
 ```
+%%END_PROJECTS%%
 
 ---
 
@@ -192,7 +238,7 @@ SORT file.mtime DESC
 
 ```dataviewjs
 const pages = dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "2026-W14");
+  .where(p => p.week && p.week.path === "<% weekStr %>");
 
 const energyMap = { "High": 3, "Medium": 2, "Low": 1 };
 const energies = pages.where(p => p.energy).map(p => energyMap[p.energy] || 0);
@@ -205,8 +251,8 @@ const avgF = focuses.length
 
 const mrs = dv.pages('"01 - Projects"')
   .where(p => p.type === "branch-doc"
-    && p.updated >= dv.date("2026-03-30")
-    && p.updated <= dv.date("2026-04-05"));
+    && p.updated >= dv.date("<% startOfWeek %>")
+    && p.updated <= dv.date("<% endOfWeek %>"));
 
 const mrProd = mrs.where(p => p.status === "PROD").length;
 const mrTotal = mrs.length;

@@ -29,18 +29,23 @@ Le fichier `Vault Settings.md` (à placer dans `07 - Config/`) est la page d'adm
 
 | Module | Ce qu'il contrôle | Par défaut |
 |--------|-------------------|------------|
-| 🔀 Branches / MR | Sections MR dans Daily/Weekly/Monthly/Quarterly | ✅ ON |
-| 📚 Formations | Sections formations + bouton Log Formation | ✅ ON |
-| 📅 Monthly | Auto-création des notes mensuelles depuis le Daily | ✅ ON |
-| 📊 Quarterly | Auto-création des notes trimestrielles depuis le Daily | ✅ ON |
+| 📅 Monthly | Auto-création des notes mensuelles | ✅ ON |
+| 📊 Quarterly | Auto-création des notes trimestrielles | ✅ ON |
+| 📆 Yearly | Auto-création des notes annuelles (bilan) | ✅ ON |
 | 🧠 Énergie & Focus | Sélecteur énergie + slider focus | ✅ ON |
+| 📊 Progression | Barres de progression mois/année dans le Daily | ✅ ON |
+| 🎯 Tâche ultime | LA tâche prioritaire unique de la journée | ✅ ON |
 | 🗣️ Standup Auto | Section standup + bouton copie presse-papier | ✅ ON |
+| 🎮 Routines | Suivi quotidien de hobbies/passions (lecture, sport) | ✅ ON |
+| 📝 Activité du jour | Notes modifiées et créées aujourd'hui | ✅ ON |
+| 🔀 Branches / MR | Suivi des branches git, statuts, sync, MR board | ✅ ON |
+| 📚 Formations | Sections formations + bouton Log Formation | ✅ ON |
 | 🚀 Projets actifs | Section projets actifs dans les notes | ✅ ON |
 | 📊 Habitudes | Tracker d'habitudes dans le Monthly | ✅ ON |
 
 ### Comment ça marche
 
-Les templates (Daily, Weekly, Monthly, Quarterly) utilisent des marqueurs `%%BEGIN_MODULE%%` / `%%END_MODULE%%` autour de chaque section optionnelle. À la création d'une note :
+Les templates (Daily, Weekly, Monthly, Quarterly, Yearly) utilisent des marqueurs `%%BEGIN_MODULE%%` / `%%END_MODULE%%` autour de chaque section optionnelle. À la création d'une note :
 1. Templater lit le frontmatter de `Vault Settings.md`
 2. Pour chaque module désactivé, le bloc correspondant est supprimé du fichier généré
 3. Les marqueurs restants sont nettoyés
@@ -68,10 +73,11 @@ Vault/
 │   ├── Daily/YYYY/Www/      → Organisées par année et semaine
 │   ├── Weekly/              → Une note par semaine
 │   ├── Monthly/             → Une note par mois
-│   └── Quarterly/           → Une note par trimestre (OKR)
+│   ├── Quarterly/           → Une note par trimestre (OKR)
+│   └── Yearly/              → Une note par année (bilan)
 ├── 05 - Archive/            → Notes archivées
 ├── 05 - Tasks/              → Gestion des tâches
-├── 06 - Templates/          → Tous les templates (18 templates)
+├── 06 - Templates/          → Tous les templates (19 templates)
 ├── 07 - Config/             → Configuration, scripts QuickAdd, documentation technique
 │   ├── scripts/             → Scripts JS pour les macros QuickAdd
 │   ├── cache/               → Cache des diffs git (auto-généré)
@@ -117,10 +123,11 @@ Vault/
 ### Hiérarchie temporelle
 
 ```
-Quarterly (OKR + formations)
-  └── Monthly (objectifs du mois + formations + habitudes)
-       └── Weekly (objectifs semaine + TIL + formations + stats)
-            └── Daily (objectifs MoSCoW + énergie + formations + standup + rétrospective)
+Yearly (bilan annuel + objectifs long terme)
+  └── Quarterly (OKR + formations)
+       └── Monthly (objectifs du mois + formations + habitudes)
+            └── Weekly (objectifs semaine + TIL + formations + stats)
+                 └── Daily (tâche ultime + MoSCoW + énergie + progression + routines + standup + activité)
 ```
 
 Chaque niveau **reporte automatiquement** les tâches non-complétées du niveau précédent via Dataview.
@@ -133,9 +140,11 @@ Le Daily est le cœur du système. Il contient :
 
 | Section | Description |
 |---------|-------------|
-| **🧠 État du jour** | Sélecteur d'énergie (High/Medium/Low) et slider de focus (1-10) via Meta Bind |
+| **📊 Progression** | Barres de progression mois/année (inline Dataview) — *désactivable* |
+| **🧠 État du jour** | Sélecteur d'énergie + slider de focus via Meta Bind — *désactivable* |
 | **↩️ Reports d'hier** | Tâches Pro/Perso non-complétées d'hier (auto via Dataview) |
 | **⚠️ Tâches en retard** | Tâches de +3 jours non-complétées (auto) |
+| **⚡ Tâche ultime** | LA tâche prioritaire unique de la journée — *désactivable* |
 | **🎯 Objectifs du jour** | Priorisés en MoSCoW : 🔴 Must Do / 🟡 Should Do / 🟢 Could Do |
 | **🔀 MR & Branches** | Tableau des MR en attente de review et en environnement (auto) |
 | **📋 Objectifs semaine** | Rappel des objectifs weekly (auto) |
@@ -144,12 +153,14 @@ Le Daily est le cœur du système. Il contient :
 | **🔥 Blockers** | Ce qui bloque aujourd'hui |
 | **💡 TIL** | Today I Learned — agrégé automatiquement dans le Weekly |
 | **📝 Notes de contexte** | Décisions, conversations, *pourquoi* derrière un choix |
-| **🗣️ Standup Auto** | Bouton + tâches complétées hier + objectifs du jour + blockers (auto) |
+| **🎮 Routines** | Suivi quotidien de hobbies/passions (lecture, sport, etc.) — *désactivable* |
+| **🗣️ Standup Auto** | Bouton + tâches complétées hier + objectifs du jour + blockers (auto) — *désactivable* |
 | **🔄 Rétrospective** | Feedback loop : bien marché / bloqué / ajustement demain |
 | **🏁 Complété** | Récap Pro / Perso de la journée |
+| **📝 Activité du jour** | Notes modifiées et créées aujourd'hui (Dataview) — *désactivable* |
 
 **Automatisations du Daily** :
-- Auto-création du Weekly, Monthly, Quarterly s'ils n'existent pas
+- Auto-création du Weekly, Monthly, Quarterly, Yearly s'ils n'existent pas (selon config)
 - Organisation automatique dans le dossier `Daily/YYYY/Www/`
 - Toutes les dates sont dynamiques (jamais hardcodées)
 
@@ -178,6 +189,25 @@ Agrège les semaines, affiche l'énergie/focus du mois, les MR, et les objectifs
 - Formations terminées ce mois
 
 ### Quarterly Note
+
+Contient les **OKR** (Objectifs + Key Results) avec :
+- Barre de progression automatique (% de KR complétés)
+- Goal Cascade : vue des objectifs mensuels alignés
+- Stats MR du trimestre
+- Vue d'ensemble des formations
+
+### Yearly Note
+
+Bilan annuel avec :
+- Vue des 4 trimestres
+- Énergie/focus moyens de l'année
+- Stats MR et formations de l'année
+- Objectifs Pro/Perso long terme
+- Rétrospective Top 5 accomplissements / leçons
+
+---
+
+*Note : la section Quarterly ci-dessous est conservée pour référence.*
 
 Contient les **OKR** (Objectifs + Key Results) avec :
 - Barre de progression automatique (% de KR complétés)
@@ -279,6 +309,7 @@ Chaque macro est aussi accessible via des **boutons** dans les notes Daily, Bran
 | Weekly | Agrégation hebdomadaire (TIL, énergie, formations, stats) |
 | Monthly | Objectifs mensuels + habitudes + formations |
 | Quarterly | OKR trimestriels + goal cascade + formations |
+| Yearly | Bilan annuel + objectifs long terme + stats |
 
 ### Développement
 | Template | Usage |
@@ -387,7 +418,7 @@ Le dossier `08 - Starter Kit/` est un **junction** (lien symbolique) vers le rep
 ├── Documentation Vault.md     → Documentation complète
 ├── Partager le Vault.md       → Guide de partage et contribution
 ├── Vault Settings.md          → Page admin des modules
-├── templates/                 → 18 templates (sections conditionnelles)
+├── templates/                 → 19 templates (sections conditionnelles)
 ├── scripts/                   → 7 scripts QuickAdd
 └── config/                    → Config Obsidian de référence
 ```
