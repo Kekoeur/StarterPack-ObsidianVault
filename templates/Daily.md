@@ -1,71 +1,90 @@
+<%*
+const moment = window.moment;
+const now = moment();
+
+// ═══ LECTURE CONFIG ═══
+const settingsFile = app.vault.getAbstractFileByPath("07 - Config/Vault Settings.md");
+let cfg = { branches: true, formations: true, monthly: true, quarterly: true, energy: true, standup: true, projects: true, habitudes: true };
+if (settingsFile) {
+  const sMeta = app.metadataCache.getFileCache(settingsFile);
+  if (sMeta?.frontmatter?.modules) cfg = { ...cfg, ...sMeta.frontmatter.modules };
+}
+
+// ═══ Organisation du daily dans le bon dossier semaine ═══
+const currentDate = tp.file.title.replace('Daily - ', '');
+const year = moment(currentDate).format('YYYY');
+const weekNum = moment(currentDate).format('ww');
+const weekPath = `04 - Journal/Daily/${year}/W${weekNum}`;
+
+if (!(await app.vault.adapter.exists(weekPath))) {
+  await app.vault.createFolder(weekPath);
+}
+if (!tp.file.path(true).includes(`W${weekNum}`)) {
+  await tp.file.move(`${weekPath}/${tp.file.title}`);
+}
+
+// ═══ AUTO-CRÉATION des notes périodiques si manquantes ═══
+const Q = Math.ceil((now.month() + 1) / 3);
+const toCreate = [
+  { path: `04 - Journal/Weekly/${now.format('YYYY-[W]ww')}`, template: "Weekly" },
+];
+if (cfg.monthly) toCreate.push({ path: `04 - Journal/Monthly/${now.format('YYYY-MM')}`, template: "Monthly" });
+if (cfg.quarterly) toCreate.push({ path: `04 - Journal/Quarterly/${now.format('YYYY')}-Q${Q}`, template: "Quarterly" });
+
+for (const item of toCreate) {
+  try {
+    if (!(await app.vault.adapter.exists(item.path + ".md"))) {
+      const tpl = tp.file.find_tfile(item.template);
+      if (tpl) { await tp.file.create_new(tpl, item.path, false); new Notice(`✅ Créé : ${item.path}`); }
+    }
+  } catch (e) { new Notice(`⚠️ Erreur création ${item.path}: ${e.message}`); }
+}
+
+// ═══ VARIABLES ═══
+const yesterday = tp.date.now("YYYY-MM-DD", -1);
+const tomorrow = tp.date.now("YYYY-MM-DD", 1);
+const threeDaysAgo = tp.date.now("YYYY-MM-DD", -3);
+const twoWeeksAgo = tp.date.now("YYYY-MM-DD", -14);
+const weekLink = tp.date.now("YYYY-[W]ww");
+const monthLink = tp.date.now("YYYY-MM");
+const dayLabel = tp.date.now("dddd DD MMMM YYYY");
+
+// ═══ SUPPRESSION POST-GÉNÉRATION ═══
+// On attend que le fichier soit créé, puis on supprime les sections désactivées
+setTimeout(async () => {
+  const file = app.vault.getAbstractFileByPath(tp.file.path(true));
+  if (!file) return;
+  let content = await app.vault.read(file);
+  const removeSection = (marker) => {
+    const re = new RegExp(`\n*%%BEGIN_${marker}%%[\\s\\S]*?%%END_${marker}%%\n*`, 'g');
+    content = content.replace(re, '\n');
+  };
+  if (!cfg.energy) removeSection('ENERGY');
+  if (!cfg.branches) removeSection('BRANCHES');
+  if (!cfg.projects) removeSection('PROJECTS');
+  if (!cfg.formations) removeSection('FORMATIONS');
+  if (!cfg.standup) removeSection('STANDUP');
+  // Nettoyer les marqueurs restants
+  content = content.replace(/%%(?:BEGIN|END)_\w+%%\n?/g, '');
+  await app.vault.modify(file, content);
+}, 500);
+-%>
 ---
 type: daily
 date: <% tp.date.now("YYYY-MM-DD") %>
-week: "[[<% tp.date.now('YYYY-[W]ww') %>]]"
-month: "[[<% tp.date.now('YYYY-MM') %>]]"
+week: "[[<% weekLink %>]]"
+month: "[[<% monthLink %>]]"
 quarter: "[[<% tp.date.now('YYYY-[Q]Q') %>]]"
 energy: null
 focus_rating: null
 tags: [daily]
 ---
 
-<%*
-const moment = window.moment;
-const now = moment();
-
-// ═══ Organisation du daily dans le bon dossier semaine (PRIORITAIRE) ═══
-const currentDate = tp.file.title.replace('Daily - ', '');
-const year = moment(currentDate).format('YYYY');
-const weekNum = moment(currentDate).format('ww');
-const weekPath = `04 - Journal/Daily/${year}/W${weekNum}`;
-
-const weekFolderExists = await app.vault.adapter.exists(weekPath);
-if (!weekFolderExists) {
-  await app.vault.createFolder(weekPath);
-}
-
-if (!tp.file.path(true).includes(`W${weekNum}`)) {
-  const newPath = `${weekPath}/${tp.file.title}`;
-  await tp.file.move(newPath);
-}
-
-// ═══ AUTO-CRÉATION des notes périodiques si manquantes ═══
-const Q = Math.ceil((now.month() + 1) / 3);
-
-const toCreate = [
-  { path: `04 - Journal/Weekly/${now.format('YYYY-[W]ww')}`, template: "Weekly" },
-  { path: `04 - Journal/Monthly/${now.format('YYYY-MM')}`, template: "Monthly" },
-  { path: `04 - Journal/Quarterly/${now.format('YYYY')}-Q${Q}`, template: "Quarterly" }
-];
-
-for (const item of toCreate) {
-  try {
-    const exists = await app.vault.adapter.exists(item.path + ".md");
-    if (!exists) {
-      const tpl = tp.file.find_tfile(item.template);
-      if (tpl) {
-        await tp.file.create_new(tpl, item.path, false);
-        new Notice(`✅ Créé : ${item.path}`);
-      }
-    }
-  } catch (e) {
-    new Notice(`⚠️ Erreur création ${item.path}: ${e.message}`);
-  }
-}
-
-// ═══ VARIABLES DYNAMIQUES ═══
-const yesterday = tp.date.now("YYYY-MM-DD", -1);
-const tomorrow = tp.date.now("YYYY-MM-DD", 1);
-const threeDaysAgo = tp.date.now("YYYY-MM-DD", -3);
-const weekLink = tp.date.now("YYYY-[W]ww");
-const monthLink = tp.date.now("YYYY-MM");
-const dayLabel = tp.date.now("dddd DD MMMM YYYY");
--%>
-
 # <% dayLabel %>
 
 > [[Daily - <% yesterday %>|← Hier]] | [[Daily - <% tomorrow %>|Demain →]] | [[<% weekLink %>|📅 Semaine]] | [[<% monthLink %>|📆 Mois]] | [[00 - Dashboard/Dashboard|📊 Dashboard]]
 
+%%BEGIN_ENERGY%%
 ---
 
 ## 🧠 État du jour
@@ -73,6 +92,7 @@ const dayLabel = tp.date.now("dddd DD MMMM YYYY");
 **Énergie :** `INPUT[inlineSelect(option(High, 🔋 High), option(Medium, 🔵 Medium), option(Low, 🪫 Low)):energy]`
 
 **Focus :** `INPUT[slider(minValue(1), maxValue(10)):focus_rating]` `VIEW[{focus_rating}]`/10
+%%END_ENERGY%%
 
 ---
 
@@ -110,7 +130,7 @@ FROM "04 - Journal/Daily"
 WHERE !completed
   AND !contains(text, "#close")
   AND file.day <= date(<% threeDaysAgo %>)
-  AND file.day >= date(<% tp.date.now("YYYY-MM-DD", -14) %>)
+  AND file.day >= date(<% twoWeeksAgo %>)
 SORT file.name ASC
 LIMIT 15
 ```
@@ -129,6 +149,7 @@ LIMIT 15
 ### 🟢 Could Do
 - [ ]
 
+%%BEGIN_BRANCHES%%
 ---
 
 ## 🔀 MR & Branches actives
@@ -159,6 +180,7 @@ WHERE type = "branch-doc"
   AND (status = "DEV" OR status = "STG")
 SORT status ASC
 ```
+%%END_BRANCHES%%
 
 ---
 
@@ -171,6 +193,7 @@ WHERE file.name = "<% weekLink %>"
   AND !completed
 ```
 
+%%BEGIN_PROJECTS%%
 ---
 
 ## 🗺️ Projets actifs
@@ -183,7 +206,9 @@ FROM "01 - Projects"
 WHERE status = "active"
 SORT file.mtime DESC
 ```
+%%END_PROJECTS%%
 
+%%BEGIN_FORMATIONS%%
 ---
 
 ## 📚 Formation du jour
@@ -195,8 +220,7 @@ action QuickAdd: Log Formation
 color blue
 ```
 
-> Le bouton met à jour la progression dans la formation ET ajoute la ligne ici automatiquement.
-> Tu peux aussi logger manuellement : `- [x] [[Formation]] +X sections — description #formation`
+> Logger manuellement : `- [x] [[Formation]] +X sections — description #formation`
 
 ### Formations actives
 
@@ -223,6 +247,7 @@ if (formations.length === 0) {
 
 ### Sessions du jour
 - [ ] #formation
+%%END_FORMATIONS%%
 
 ---
 
@@ -242,6 +267,7 @@ if (formations.length === 0) {
 
 >
 
+%%BEGIN_STANDUP%%
 ---
 
 ## 🗣️ Standup Auto
@@ -269,6 +295,7 @@ LIMIT 15
 
 ### Blockers
 *(Voir section Blockers ci-dessus)*
+%%END_STANDUP%%
 
 ---
 

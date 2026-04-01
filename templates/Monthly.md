@@ -9,6 +9,31 @@ const prevMonth = moment().subtract(1, 'month').format('YYYY-MM');
 const nextMonth = moment().add(1, 'month').format('YYYY-MM');
 const monthStart = moment().startOf('month').format('YYYY-MM-DD');
 const monthEnd = moment().endOf('month').format('YYYY-MM-DD');
+
+// ═══ LECTURE CONFIG ═══
+const settingsFile = app.vault.getAbstractFileByPath("07 - Config/Vault Settings.md");
+let cfg = { branches: true, formations: true, projects: true, habitudes: true, energy: true };
+if (settingsFile) {
+  const sMeta = app.metadataCache.getFileCache(settingsFile);
+  if (sMeta?.frontmatter?.modules) cfg = { ...cfg, ...sMeta.frontmatter.modules };
+}
+
+setTimeout(async () => {
+  const file = app.vault.getAbstractFileByPath(tp.file.path(true));
+  if (!file) return;
+  let content = await app.vault.read(file);
+  const removeSection = (marker) => {
+    const re = new RegExp(`\n*%%BEGIN_${marker}%%[\\s\\S]*?%%END_${marker}%%\n*`, 'g');
+    content = content.replace(re, '\n');
+  };
+  if (!cfg.energy) removeSection('ENERGY');
+  if (!cfg.branches) removeSection('BRANCHES');
+  if (!cfg.formations) removeSection('FORMATIONS');
+  if (!cfg.projects) removeSection('PROJECTS');
+  if (!cfg.habitudes) removeSection('HABITUDES');
+  content = content.replace(/%%(?:BEGIN|END)_\w+%%\n?/g, '');
+  await app.vault.modify(file, content);
+}, 500);
 -%>
 ---
 type: monthly
@@ -36,6 +61,7 @@ WHERE month = link("<% monthStr %>")
 SORT week ASC
 ```
 
+%%BEGIN_ENERGY%%
 ---
 
 ## 🧠 Énergie & Focus du mois
@@ -55,6 +81,7 @@ const avgF = focuses.length
 
 dv.paragraph(`**Énergie moy. :** ${avgE}/3 | **Focus moy. :** ${avgF}/10 | **Jours trackés :** ${pages.length}`);
 ```
+%%END_ENERGY%%
 
 ---
 
@@ -92,6 +119,7 @@ WHERE file.name = "<% prevMonth %>"
 ### 🧍 Perso
 - [ ] #perso
 
+%%BEGIN_BRANCHES%%
 ---
 
 ## 🔀 MR du mois
@@ -106,7 +134,9 @@ dv.table(["MR", "Projet", "Statut", "MAJ"],
     .map(p => [p.file.link, p.project, p.status, p.updated])
 );
 ```
+%%END_BRANCHES%%
 
+%%BEGIN_PROJECTS%%
 ---
 
 ## 🚀 Projets actifs
@@ -120,7 +150,9 @@ FROM "01 - Projects"
 WHERE status = "active"
 SORT file.mtime DESC
 ```
+%%END_PROJECTS%%
 
+%%BEGIN_FORMATIONS%%
 ---
 
 ## 📚 Formations du mois
@@ -181,7 +213,9 @@ FROM "02 - Areas"
 WHERE type = "formation" AND status = "completed" AND completed >= date(<% monthStart %>)
 SORT completed DESC
 ```
+%%END_FORMATIONS%%
 
+%%BEGIN_HABITUDES%%
 ---
 
 ## 📊 Habitudes
@@ -191,6 +225,7 @@ SORT completed DESC
 | Sport |  |  |  |  |  |
 | Lecture |  |  |  |  |  |
 | Dev Perso |  |  |  |  |  |
+%%END_HABITUDES%%
 
 ---
 

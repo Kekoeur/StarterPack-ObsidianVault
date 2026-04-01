@@ -15,6 +15,30 @@ const nextQuarter = `${nextYear}-Q${nextQ}`;
 
 const quarterStart = moment().startOf('quarter').format('YYYY-MM-DD');
 const quarterEnd = moment().endOf('quarter').format('YYYY-MM-DD');
+
+// ═══ LECTURE CONFIG ═══
+const settingsFile = app.vault.getAbstractFileByPath("07 - Config/Vault Settings.md");
+let cfg = { branches: true, formations: true, projects: true, energy: true };
+if (settingsFile) {
+  const sMeta = app.metadataCache.getFileCache(settingsFile);
+  if (sMeta?.frontmatter?.modules) cfg = { ...cfg, ...sMeta.frontmatter.modules };
+}
+
+setTimeout(async () => {
+  const file = app.vault.getAbstractFileByPath(tp.file.path(true));
+  if (!file) return;
+  let content = await app.vault.read(file);
+  const removeSection = (marker) => {
+    const re = new RegExp(`\n*%%BEGIN_${marker}%%[\\s\\S]*?%%END_${marker}%%\n*`, 'g');
+    content = content.replace(re, '\n');
+  };
+  if (!cfg.energy) removeSection('ENERGY');
+  if (!cfg.branches) removeSection('BRANCHES');
+  if (!cfg.formations) removeSection('FORMATIONS');
+  if (!cfg.projects) removeSection('PROJECTS');
+  content = content.replace(/%%(?:BEGIN|END)_\w+%%\n?/g, '');
+  await app.vault.modify(file, content);
+}, 500);
 -%>
 ---
 type: quarterly
@@ -39,6 +63,7 @@ WHERE contains(quarter, "<% quarterStr %>")
 SORT month ASC
 ```
 
+%%BEGIN_ENERGY%%
 ---
 
 ## 🧠 Énergie & Focus du trimestre
@@ -58,6 +83,7 @@ const avgF = focuses.length
 
 dv.paragraph(`**Énergie moy. :** ${avgE}/3 | **Focus moy. :** ${avgF}/10 | **Jours trackés :** ${pages.length}`);
 ```
+%%END_ENERGY%%
 
 ---
 
@@ -135,6 +161,7 @@ for (let month of dv.pages('"04 - Journal/Monthly"')
 }
 ```
 
+%%BEGIN_BRANCHES%%
 ---
 
 ## 🔀 MR du trimestre
@@ -157,7 +184,9 @@ dv.table(["MR", "Projet", "Statut"],
     .map(p => [p.file.link, p.project, p.status])
 );
 ```
+%%END_BRANCHES%%
 
+%%BEGIN_FORMATIONS%%
 ---
 
 ## 📚 Formations du trimestre
@@ -219,7 +248,9 @@ FROM "02 - Areas"
 WHERE type = "formation" AND status = "completed" AND completed >= date(<% quarterStart %>) AND completed <= date(<% quarterEnd %>)
 SORT completed DESC
 ```
+%%END_FORMATIONS%%
 
+%%BEGIN_PROJECTS%%
 ---
 
 ## 🚀 Projets actifs
@@ -233,6 +264,7 @@ FROM "01 - Projects"
 WHERE status = "active"
 SORT file.mtime DESC
 ```
+%%END_PROJECTS%%
 
 ---
 

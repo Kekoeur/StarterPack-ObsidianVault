@@ -1,31 +1,17 @@
-<%*
-const moment = window.moment;
-const weekStr = tp.date.now("YYYY-[W]ww");
-const year = tp.date.now("YYYY");
-const Q = Math.ceil((moment().month() + 1) / 3);
-const quarterStr = `${year}-Q${Q}`;
-const monthStr = tp.date.now("YYYY-MM");
-const startOfWeek = moment().startOf('isoWeek').format('YYYY-MM-DD');
-const endOfWeek = moment().endOf('isoWeek').format('YYYY-MM-DD');
-const prevWeek = moment().subtract(1, 'week').format('YYYY-[W]ww');
-const nextWeek = moment().add(1, 'week').format('YYYY-[W]ww');
-const startLabel = moment().startOf('isoWeek').format('DD MMM');
-const endLabel = moment().endOf('isoWeek').format('DD MMM');
--%>
 ---
 type: weekly
-week: <% weekStr %>
-year: <% year %>
-quarter: "[[<% quarterStr %>]]"
-month: "[[<% monthStr %>]]"
-start: <% startOfWeek %>
-end: <% endOfWeek %>
+week: 2026-W14
+year: 2026
+quarter: "[[2026-Q2]]"
+month: "[[2026-04]]"
+start: 2026-03-30
+end: 2026-04-05
 tags: [weekly]
 ---
 
-# 📆 <% weekStr %>
+# 📆 2026-W14
 
-> Du <% startLabel %> au <% endLabel %> | [[<% prevWeek %>|← Sem. précédente]] | [[<% nextWeek %>|Sem. suivante →]] | [[<% monthStr %>|📆 Mois]] | [[<% quarterStr %>|📊 Trimestre]] | [[00 - Dashboard/Dashboard|Dashboard]]
+> Du 30 mars au 05 avr. | [[2026-W13|← Sem. précédente]] | [[2026-W15|Sem. suivante →]] | [[2026-04|📆 Mois]] | [[2026-Q2|📊 Trimestre]] | [[00 - Dashboard/Dashboard|Dashboard]]
 
 ---
 
@@ -39,7 +25,7 @@ TABLE WITHOUT ID
   length(filter(file.tasks, (t) => t.completed)) AS "✅",
   length(filter(file.tasks, (t) => !t.completed AND !contains(t.text, "#close"))) AS "⬜"
 FROM "04 - Journal/Daily"
-WHERE week = link("<% weekStr %>")
+WHERE week = link("2026-W14")
 SORT date ASC
 ```
 
@@ -49,7 +35,7 @@ SORT date ASC
 
 ```dataviewjs
 const pages = dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "<% weekStr %>");
+  .where(p => p.week && p.week.path === "2026-W14");
 
 const energyMap = { "High": 3, "Medium": 2, "Low": 1 };
 const energies = pages.where(p => p.energy).map(p => energyMap[p.energy] || 0);
@@ -80,7 +66,7 @@ dv.table(["Jour", "Énergie", "Focus"],
 ```dataview
 TASK
 FROM "04 - Journal/Weekly"
-WHERE file.name = "<% prevWeek %>"
+WHERE file.name = "2026-W13"
   AND !completed AND !contains(text, "#close")
   AND contains(text, "#pro")
 ```
@@ -90,7 +76,7 @@ WHERE file.name = "<% prevWeek %>"
 ```dataview
 TASK
 FROM "04 - Journal/Weekly"
-WHERE file.name = "<% prevWeek %>"
+WHERE file.name = "2026-W13"
   AND !completed AND !contains(text, "#close")
   AND contains(text, "#perso")
 ```
@@ -114,8 +100,8 @@ WHERE file.name = "<% prevWeek %>"
 dv.table(["MR", "Projet", "Statut", "MAJ"],
   dv.pages('"01 - Projects"')
     .where(p => p.type === "branch-doc"
-      && p.updated >= dv.date("<% startOfWeek %>")
-      && p.updated <= dv.date("<% endOfWeek %>"))
+      && p.updated >= dv.date("2026-03-30")
+      && p.updated <= dv.date("2026-04-05"))
     .sort(p => p.updated, "desc")
     .map(p => [p.file.link, p.project, p.status, p.updated])
 );
@@ -127,7 +113,7 @@ dv.table(["MR", "Projet", "Statut", "MAJ"],
 
 ```dataviewjs
 for (let page of dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "<% weekStr %>")
+  .where(p => p.week && p.week.path === "2026-W14")
   .sort(p => p.date, "asc")) {
 
   const content = await dv.io.load(page.file.path);
@@ -170,7 +156,7 @@ if (formations.length === 0) {
 
 ```dataviewjs
 const pages = dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "<% weekStr %>");
+  .where(p => p.week && p.week.path === "2026-W14");
 
 let found = false;
 for (let page of pages.sort(p => p.date, "asc")) {
@@ -206,7 +192,7 @@ SORT file.mtime DESC
 
 ```dataviewjs
 const pages = dv.pages('"04 - Journal/Daily"')
-  .where(p => p.week && p.week.path === "<% weekStr %>");
+  .where(p => p.week && p.week.path === "2026-W14");
 
 const energyMap = { "High": 3, "Medium": 2, "Low": 1 };
 const energies = pages.where(p => p.energy).map(p => energyMap[p.energy] || 0);
@@ -219,8 +205,8 @@ const avgF = focuses.length
 
 const mrs = dv.pages('"01 - Projects"')
   .where(p => p.type === "branch-doc"
-    && p.updated >= dv.date("<% startOfWeek %>")
-    && p.updated <= dv.date("<% endOfWeek %>"));
+    && p.updated >= dv.date("2026-03-30")
+    && p.updated <= dv.date("2026-04-05"));
 
 const mrProd = mrs.where(p => p.status === "PROD").length;
 const mrTotal = mrs.length;

@@ -1,9 +1,9 @@
 ---
 type: release
-version: <% await tp.system.prompt("Numéro de version (ex: 1.2.0, 2.0.0-beta)") %>
-date: <% tp.date.now("YYYY-MM-DD") %>
-project: <% await tp.system.suggester(["🏠 Projet-A", "🏠 Projet-B"], ["Projet-A", "Projet-B"]) %>
-environment: <% await tp.system.suggester(["🟢 DEV", "🟣 STG — Staging", "🔴 PROD — Production"], ["DEV", "STG", "PROD"]) %>
+version: null
+date: 2026-04-01
+project: null
+environment: null
 tags: [release]
 ---
 

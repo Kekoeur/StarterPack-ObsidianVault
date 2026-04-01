@@ -1,7 +1,7 @@
 ---
 type: environment
-project: <% await tp.system.suggester(["🏢 Projet-A", "🏢 Projet-B", "🏠 Projet-Perso"], ["Projet-A", "Projet-B", "Projet-Perso"]) %>
-env_type: <% await tp.system.suggester(["💻 Local — Machine de dev", "🟢 DEV — Environnement de développement", "🟣 STG — Staging / pré-production", "🔴 PROD — Production"], ["local", "dev", "stg", "prod"]) %>
+project: null
+env_type: null
 tags: [environment]
 ---
 

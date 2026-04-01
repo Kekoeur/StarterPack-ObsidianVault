@@ -1,14 +1,14 @@
 ---
 type: mr-review
-date: <% tp.date.now("YYYY-MM-DD") %>
-project: <% await tp.system.suggester(["🏢 Projet-A", "🏢 Projet-B", "🏠 Projet-Perso"], ["Projet-A", "Projet-B", "Projet-Perso"]) %>
+date: 2026-04-01
+project: null
 mr_url:
-reviewer: <% await tp.system.prompt("Qui a fait la review ?") %>
-outcome: <% await tp.system.suggester(["✅ Approuvée", "🔄 Changes requested", "💬 Commentaires seulement"], ["approved", "changes_requested", "comments_only"]) %>
+reviewer: null
+outcome: null
 tags: [review]
 ---
 
-# 👀 Review — <% tp.file.title %>
+# 👀 Review — Reading-Note
 
 > Projet : `= this.project` | Reviewer : `= this.reviewer` | Résultat : `= this.outcome`
 
