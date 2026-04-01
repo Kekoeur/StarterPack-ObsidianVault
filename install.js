@@ -87,7 +87,7 @@ async function main() {
 
   // 1. Structure de dossiers
   console.log("");
-  console.log("  [1/6] Création de la structure de dossiers...");
+  console.log("  [1/7] Création de la structure de dossiers...");
   const structurePath = path.join(STARTER, "vault-structure");
   if (fs.existsSync(structurePath)) {
     const dirs = ensureDirsFromStructure(structurePath, vault);
@@ -108,17 +108,17 @@ async function main() {
   }
 
   // 2. Templates
-  console.log("  [2/6] Copie des templates...");
+  console.log("  [2/7] Copie des templates...");
   const tStats = copyRecursive(path.join(STARTER, "templates"), path.join(vault, "06 - Templates"));
   console.log(`    ✅ ${tStats.added} templates copiés, ${tStats.skipped} déjà existants`);
 
   // 3. Scripts
-  console.log("  [3/6] Copie des scripts...");
+  console.log("  [3/7] Copie des scripts...");
   const sStats = copyRecursive(path.join(STARTER, "scripts"), path.join(vault, "07 - Config", "scripts"));
   console.log(`    ✅ ${sStats.added} scripts copiés, ${sStats.skipped} déjà existants`);
 
   // 4. Vault Settings
-  console.log("  [4/6] Copie du Vault Settings...");
+  console.log("  [4/7] Copie du Vault Settings...");
   const vsTarget = path.join(vault, "07 - Config", "Vault Settings.md");
   if (!fs.existsSync(vsTarget)) {
     fs.copyFileSync(path.join(STARTER, "Vault Settings.md"), vsTarget);
@@ -128,15 +128,30 @@ async function main() {
   }
 
   // 5. Documentation
-  console.log("  [5/6] Copie de la documentation...");
+  console.log("  [5/7] Copie de la documentation...");
   const docTarget = path.join(vault, "07 - Config", "Documentation Vault.md");
   if (!fs.existsSync(docTarget)) {
     fs.copyFileSync(path.join(STARTER, "Documentation Vault.md"), docTarget);
   }
   console.log("    ✅ Documentation copiée");
 
-  // 6. Home.md
-  console.log("  [6/6] Création de Home.md...");
+  // 6. Config QuickAdd (macros pré-configurées)
+  console.log("  [6/7] Configuration des macros QuickAdd...");
+  const qaDir = path.join(vault, ".obsidian", "plugins", "quickadd");
+  const qaTarget = path.join(qaDir, "data.json");
+  const qaSrc = path.join(STARTER, "config", "quickadd-data.json");
+  if (!fs.existsSync(qaTarget) && fs.existsSync(qaSrc)) {
+    fs.mkdirSync(qaDir, { recursive: true });
+    fs.copyFileSync(qaSrc, qaTarget);
+    console.log("    ✅ 6 macros QuickAdd pré-configurées");
+  } else if (fs.existsSync(qaTarget)) {
+    console.log("    ⏭️  Config QuickAdd existante (non écrasée)");
+  } else {
+    console.log("    ⚠️  quickadd-data.json non trouvé dans le starter pack");
+  }
+
+  // 7. Home.md
+  console.log("  [7/7] Création de Home.md...");
   const homeTarget = path.join(vault, "Home.md");
   if (!fs.existsSync(homeTarget)) {
     fs.writeFileSync(homeTarget, `---

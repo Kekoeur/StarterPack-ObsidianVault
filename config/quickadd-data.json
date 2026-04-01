@@ -1,0 +1,163 @@
+{
+  "choices": [
+    {
+      "id": "qa-import-gitlab-issue",
+      "name": "Import GitLab Issue",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "id": "macro-import-gitlab-issue",
+        "name": "Import GitLab Issue",
+        "commands": [
+          {
+            "name": "import-gitlab-issue",
+            "type": "UserScript",
+            "id": "cmd-import-gitlab-issue",
+            "path": "07 - Config/scripts/import-gitlab-issue.js",
+            "settings": {}
+          }
+        ]
+      },
+      "runOnStartup": false
+    },
+    {
+      "id": "qa-sync-branch",
+      "name": "Sync Branch",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "id": "macro-sync-branch",
+        "name": "Sync Branch",
+        "commands": [
+          {
+            "name": "sync-branch",
+            "type": "UserScript",
+            "id": "cmd-sync-branch",
+            "path": "07 - Config/scripts/sync-branch.js",
+            "settings": {}
+          }
+        ]
+      },
+      "runOnStartup": false
+    },
+    {
+      "id": "qa-generate-mr-message",
+      "name": "Generate MR Message",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "id": "macro-generate-mr-message",
+        "name": "Generate MR Message",
+        "commands": [
+          {
+            "name": "generate-mr-message",
+            "type": "UserScript",
+            "id": "cmd-generate-mr-message",
+            "path": "07 - Config/scripts/generate-mr-message.js",
+            "settings": {}
+          }
+        ]
+      },
+      "runOnStartup": false
+    },
+    {
+      "id": "qa-standup-clipboard",
+      "name": "Standup Clipboard",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "id": "macro-standup-clipboard",
+        "name": "Standup Clipboard",
+        "commands": [
+          {
+            "name": "standup-clipboard",
+            "type": "UserScript",
+            "id": "cmd-standup-clipboard",
+            "path": "07 - Config/scripts/standup-clipboard.js",
+            "settings": {}
+          }
+        ]
+      },
+      "runOnStartup": false
+    },
+    {
+      "id": "qa-auto-archive",
+      "name": "Auto-Archive",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "id": "macro-auto-archive",
+        "name": "Auto-Archive",
+        "commands": [
+          {
+            "name": "auto-archive",
+            "type": "UserScript",
+            "id": "cmd-auto-archive",
+            "path": "07 - Config/scripts/auto-archive.js",
+            "settings": {}
+          }
+        ]
+      },
+      "runOnStartup": false
+    },
+    {
+      "id": "qa-log-formation",
+      "name": "Log Formation",
+      "type": "Macro",
+      "command": true,
+      "macro": {
+        "id": "macro-log-formation",
+        "name": "Log Formation",
+        "commands": [
+          {
+            "name": "log-formation",
+            "type": "UserScript",
+            "id": "cmd-log-formation",
+            "path": "07 - Config/scripts/log-formation.js",
+            "settings": {}
+          }
+        ]
+      },
+      "runOnStartup": false
+    }
+  ],
+  "inputPrompt": "single-line",
+  "persistInputPromptDrafts": true,
+  "useSelectionAsCaptureValue": true,
+  "devMode": false,
+  "templateFolderPath": "",
+  "announceUpdates": "major",
+  "version": "2.12.0",
+  "globalVariables": {},
+  "onePageInputEnabled": false,
+  "disableOnlineFeatures": true,
+  "enableRibbonIcon": true,
+  "showCaptureNotification": true,
+  "showInputCancellationNotification": false,
+  "enableTemplatePropertyTypes": false,
+  "dateAliases": {
+    "t": "today",
+    "tm": "tomorrow",
+    "yd": "yesterday"
+  },
+  "ai": {
+    "defaultModel": "Ask me",
+    "defaultSystemPrompt": "",
+    "promptTemplatesFolderPath": "",
+    "showAssistant": true,
+    "providers": []
+  },
+  "migrations": {
+    "migrateToMacroIDFromEmbeddedMacro": true,
+    "useQuickAddTemplateFolder": true,
+    "incrementFileNameSettingMoveToDefaultBehavior": true,
+    "mutualExclusionInsertAfterAndWriteToBottomOfFile": true,
+    "setVersionAfterUpdateModalRelease": true,
+    "addDefaultAIProviders": true,
+    "removeMacroIndirection": true,
+    "migrateFileOpeningSettings": true,
+    "backfillFileOpeningDefaults": true,
+    "setProviderModelDiscoveryMode": true,
+    "migrateProviderApiKeysToSecretStorage": true
+  }
+}
