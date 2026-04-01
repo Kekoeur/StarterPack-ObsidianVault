@@ -5,154 +5,178 @@ tags: [doc, guide, sharing]
 
 # 📤 Partager le Vault — Guide
 
-> Comment partager ton vault ou le Starter Kit avec un collègue.
+> Comment partager, contribuer, et synchroniser le Starter Kit.
 
 ---
 
-## Option 1 : Partager le Starter Kit (recommandé)
+## Option 1 : Cloner le repo GitHub (recommandé)
 
-Le plus simple. Le collègue repart de zéro avec un vault propre.
+Le starter pack est hébergé sur GitHub. C'est la méthode la plus simple et la plus maintenable.
 
-### Étapes
+### Installation
 
-1. Copier le dossier `08 - Starter Kit/` sur une clé USB, par email, ou via un repo Git
-2. Le collègue suit le `README.md` étape par étape (~10 min)
-3. Il adapte `git-helpers.js` avec ses propres projets et chemins locaux
+```bash
+# Cloner le repo
+git clone https://github.com/Kekoeur/StarterPack-ObsidianVault.git
+
+# Ouvrir Obsidian → créer un nouveau vault
+# Copier le contenu du repo dans le vault
+# Suivre le README.md
+```
 
 ### Ce qui est inclus
 
-- 11 templates génériques (sans données perso)
-- 4 scripts QuickAdd (avec projets placeholder)
+- 18 templates génériques (sans données perso)
+- 7 scripts QuickAdd (avec projets placeholder)
 - Config Obsidian de référence
+- Page de paramétrage (Vault Settings)
 - Documentation complète du système
 
 ---
 
-## Option 2 : Repo Git partagé (équipe)
+## Option 2 : Lier le repo à ton vault (junction)
 
-Pour une équipe qui veut partager les templates et scripts tout en gardant ses notes perso.
+Pour voir le starter pack directement dans ton vault Obsidian et synchroniser dans les deux sens.
 
-### Setup initial
+### Setup (Windows)
+
+```powershell
+# 1. Cloner le repo quelque part sur ton PC
+git clone https://github.com/Kekoeur/StarterPack-ObsidianVault.git C:\Users\MOI\Documents\StarterPack-ObsidianVault
+
+# 2. Supprimer le dossier 08 - Starter Kit dans le vault s'il existe
+Remove-Item "C:\Users\MOI\Documents\MonVault\08 - Starter Kit" -Recurse -Force
+
+# 3. Créer le junction (lien symbolique)
+cmd /c mklink /J "C:\Users\MOI\Documents\MonVault\08 - Starter Kit" "C:\Users\MOI\Documents\StarterPack-ObsidianVault"
+```
+
+### Setup (macOS / Linux)
 
 ```bash
-# Créer le repo
-cd "chemin/vers/vault"
-git init
+# 1. Cloner le repo
+git clone https://github.com/Kekoeur/StarterPack-ObsidianVault.git ~/Documents/StarterPack-ObsidianVault
+
+# 2. Supprimer le dossier existant
+rm -rf ~/Documents/MonVault/08\ -\ Starter\ Kit
+
+# 3. Créer le symlink
+ln -s ~/Documents/StarterPack-ObsidianVault ~/Documents/MonVault/08\ -\ Starter\ Kit
 ```
 
-### .gitignore recommandé
+### Résultat
 
-```gitignore
-# Notes personnelles — NE PAS COMMITER
-04 - Journal/
-01 - Projects/
-02 - Areas/
-03 - Resources/Contacts/
-03 - Resources/Médical/
-05 - Archive/
-07 - Config/cache/
+- `08 - Starter Kit/` dans ton vault pointe vers le repo Git
+- Toute modification dans l'un est visible dans l'autre instantanément
+- Tu peux naviguer dans le starter kit depuis Obsidian normalement
 
-# Obsidian workspace (spécifique à chaque machine)
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
+---
 
-# Secrets
-.obsidian-secrets/
+## Synchroniser les changements
 
-# OS
-.DS_Store
-Thumbs.db
-```
+### Récupérer les mises à jour (pull)
 
-### Ce qui est versionné
-
-```
-✅ 00 - Dashboard/          → Pages d'accueil (partagées)
-✅ 06 - Templates/          → Templates (partagés)
-✅ 07 - Config/scripts/     → Scripts QuickAdd (partagés)
-✅ 07 - Config/*.md         → Documentation config (partagée)
-✅ 08 - Starter Kit/        → Kit de démarrage
-✅ 03 - Resources/*.md      → Cheatsheets, guides (partagés)
-✅ Home.md                  → Page d'accueil
-```
-
-### Workflow Git
+Quand quelqu'un a poussé des améliorations sur le repo :
 
 ```bash
-# Quand tu modifies un template ou script
-git add 06\ -\ Templates/ 07\ -\ Config/scripts/
-git commit -m "feat: amélioration template Branch"
-git push
-
-# Quand un collègue veut récupérer les changements
+cd C:\Users\MOI\Documents\StarterPack-ObsidianVault
 git pull
 ```
 
+Les fichiers sont mis à jour dans ton vault instantanément via le junction.
+
+### Pousser tes modifications (push)
+
+Si tu as modifié des templates ou scripts dans ton vault et que tu veux les partager :
+
+```bash
+cd C:\Users\MOI\Documents\StarterPack-ObsidianVault
+git add -A
+git commit -m "feat: description de la modification"
+git push
+```
+
+### Synchroniser les templates périodiques
+
+Les templates Daily, Weekly, Monthly, Quarterly vivent dans `06 - Templates/` de ton vault (pas dans le starter kit). Si tu les modifies et veux mettre à jour le starter kit :
+
+```bash
+# Copier les templates mis à jour vers le repo
+copy "06 - Templates\Daily.md" "08 - Starter Kit\templates\Daily.md"
+copy "06 - Templates\Weekly.md" "08 - Starter Kit\templates\Weekly.md"
+copy "06 - Templates\Monthly.md" "08 - Starter Kit\templates\Monthly.md"
+copy "06 - Templates\Quarterly.md" "08 - Starter Kit\templates\Quarterly.md"
+
+# Puis commit + push depuis le repo
+cd C:\Users\MOI\Documents\StarterPack-ObsidianVault
+git add -A
+git commit -m "feat: mise à jour templates périodiques"
+git push
+```
+
+Ou utiliser le script `07 - Config/scripts/sync-starterpack.bat` qui fait tout ça automatiquement.
+
 ---
 
-## Option 3 : Obsidian Publish (lecture seule)
+## Contribuer au Starter Pack
+
+### Via Pull Request (recommandé)
+
+```bash
+# 1. Fork le repo sur GitHub
+# 2. Clone ton fork
+git clone https://github.com/TON-USER/StarterPack-ObsidianVault.git
+
+# 3. Crée une branche
+git checkout -b feat/mon-amelioration
+
+# 4. Fais tes modifications
+# 5. Commit et push
+git add -A
+git commit -m "feat: description"
+git push origin feat/mon-amelioration
+
+# 6. Ouvre une Pull Request sur GitHub
+```
+
+### Directement (si tu as les droits)
+
+```bash
+cd C:\Users\MOI\Documents\StarterPack-ObsidianVault
+git add -A
+git commit -m "feat: description"
+git push
+```
+
+---
+
+## Option 3 : Copie simple (sans Git)
+
+Pour un partage ponctuel sans synchronisation.
+
+1. Copier le dossier `08 - Starter Kit/` sur une clé USB ou par email
+2. Le collègue copie le contenu dans son vault
+3. Il suit le `README.md` étape par étape
+
+---
+
+## Option 4 : Obsidian Publish (lecture seule)
 
 Pour publier la documentation en ligne (payant : ~8$/mois).
 
-### Setup
-
 1. Settings → Core plugins → Activer "Publish"
 2. `Ctrl+P` → "Publish: Publish changes"
-3. Sélectionner les fichiers à publier :
-   - `08 - Starter Kit/Documentation Vault.md`
-   - `08 - Starter Kit/README.md`
-   - `03 - Resources/Guide Obsidian.md`
-   - `03 - Resources/Obsidian Cheatsheet.md`
+3. Sélectionner les fichiers à publier
 
-### ⚠️ Ne jamais publier
-
-- Notes personnelles (Journal, Projects)
-- Fichiers de config avec tokens/secrets
-- Notes de contacts
-
----
-
-## Option 4 : Export Markdown simple
-
-Pour un partage ponctuel sans Git.
-
-### Script d'export
-
-```bash
-# Windows (PowerShell)
-$dest = "$env:USERPROFILE\Desktop\Vault-Export"
-New-Item -ItemType Directory -Force -Path $dest
-
-Copy-Item "06 - Templates\*" "$dest\templates\" -Recurse
-Copy-Item "07 - Config\scripts\*" "$dest\scripts\" -Recurse
-Copy-Item "08 - Starter Kit\*" "$dest\starter-kit\" -Recurse
-Copy-Item "Home.md" "$dest\"
-Copy-Item "00 - Dashboard\Dashboard.md" "$dest\"
-
-Write-Host "✅ Export terminé dans $dest"
-```
-
-```bash
-# macOS / Linux
-dest=~/Desktop/Vault-Export
-mkdir -p "$dest"/{templates,scripts,starter-kit}
-
-cp "06 - Templates/"* "$dest/templates/"
-cp "07 - Config/scripts/"* "$dest/scripts/"
-cp -r "08 - Starter Kit/"* "$dest/starter-kit/"
-cp Home.md "$dest/"
-cp "00 - Dashboard/Dashboard.md" "$dest/"
-
-echo "✅ Export terminé dans $dest"
-```
+⚠️ Ne jamais publier : notes personnelles, tokens/secrets, contacts.
 
 ---
 
 ## Résumé
 
-| Méthode | Effort | Coût | Temps réel |
-|---------|--------|------|------------|
-| Starter Kit (copie) | Faible | Gratuit | Ponctuel |
-| Repo Git partagé | Moyen | Gratuit | Continu |
-| Obsidian Publish | Faible | ~8$/mois | Continu |
-| Export Markdown | Faible | Gratuit | Ponctuel |
+| Méthode | Effort | Sync | Collaboration |
+|---------|--------|------|---------------|
+| Repo GitHub + junction | Moyen | ✅ Bidirectionnelle | ✅ Pull Requests |
+| Repo GitHub (clone simple) | Faible | ✅ Pull uniquement | ✅ Pull Requests |
+| Copie simple | Faible | ❌ Ponctuel | ❌ |
+| Obsidian Publish | Faible | ❌ Lecture seule | ❌ |

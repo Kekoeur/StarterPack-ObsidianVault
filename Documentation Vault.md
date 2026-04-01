@@ -23,6 +23,37 @@ Ce vault est un **Second Brain** orienté développeur qui centralise :
 
 ---
 
+## ⚙️ Vault Settings — Modules activables
+
+Le fichier `Vault Settings.md` (à placer dans `07 - Config/`) est la page d'admin du vault. Elle contient des **toggles Meta Bind** pour activer/désactiver chaque module :
+
+| Module | Ce qu'il contrôle | Par défaut |
+|--------|-------------------|------------|
+| 🔀 Branches / MR | Sections MR dans Daily/Weekly/Monthly/Quarterly | ✅ ON |
+| 📚 Formations | Sections formations + bouton Log Formation | ✅ ON |
+| 📅 Monthly | Auto-création des notes mensuelles depuis le Daily | ✅ ON |
+| 📊 Quarterly | Auto-création des notes trimestrielles depuis le Daily | ✅ ON |
+| 🧠 Énergie & Focus | Sélecteur énergie + slider focus | ✅ ON |
+| 🗣️ Standup Auto | Section standup + bouton copie presse-papier | ✅ ON |
+| 🚀 Projets actifs | Section projets actifs dans les notes | ✅ ON |
+| 📊 Habitudes | Tracker d'habitudes dans le Monthly | ✅ ON |
+
+### Comment ça marche
+
+Les templates (Daily, Weekly, Monthly, Quarterly) utilisent des marqueurs `%%BEGIN_MODULE%%` / `%%END_MODULE%%` autour de chaque section optionnelle. À la création d'une note :
+1. Templater lit le frontmatter de `Vault Settings.md`
+2. Pour chaque module désactivé, le bloc correspondant est supprimé du fichier généré
+3. Les marqueurs restants sont nettoyés
+
+Résultat : pas de popup inutile, pas de section vide. Chaque utilisateur choisit ce qu'il veut.
+
+### Pour modifier
+- Ouvrir `07 - Config/Vault Settings.md`
+- Cliquer sur les toggles
+- Les prochaines notes créées refléteront les changements
+
+---
+
 ## 🗂️ Architecture du Vault
 
 ```
@@ -42,9 +73,10 @@ Vault/
 ├── 05 - Tasks/              → Gestion des tâches
 ├── 06 - Templates/          → Tous les templates (18 templates)
 ├── 07 - Config/             → Configuration, scripts QuickAdd, documentation technique
-│   ├── scripts/             → Scripts JS pour les macros QuickAdd (8 scripts)
-│   └── cache/               → Cache des diffs git (auto-généré)
-└── 08 - Starter Kit/        → Kit de démarrage pour partager le vault
+│   ├── scripts/             → Scripts JS pour les macros QuickAdd
+│   ├── cache/               → Cache des diffs git (auto-généré)
+│   └── Vault Settings.md    → Page admin : activer/désactiver les modules
+└── 08 - Starter Kit/        → Kit de démarrage (junction vers repo GitHub)
 ```
 
 ---
@@ -345,40 +377,35 @@ Voir le **Starter Kit** dans `08 - Starter Kit/` pour un guide pas-à-pas.
 
 ## 📦 Starter Kit — Partager le vault
 
-Le dossier `08 - Starter Kit/` contient tout le nécessaire pour qu'un collègue puisse monter son propre vault en ~10 minutes :
+Le dossier `08 - Starter Kit/` est un **junction** (lien symbolique) vers le repo GitHub : `github.com/Kekoeur/StarterPack-ObsidianVault`
 
 ### Contenu
 
 ```
 08 - Starter Kit/
-├── README.md                  → Guide d'installation en 10 étapes
-├── Documentation Vault.md     → Documentation complète du système
-├── Partager le Vault.md       → Guide de partage (Git, Publish, Export)
-├── templates/                 → 18 templates génériques (sans données perso)
-│   ├── Daily.md, Weekly.md, Monthly.md, Quarterly.md
-│   ├── Branch.md, Meeting.md, 1on1.md, Incident.md
-│   ├── Error-Entry.md, Contact.md, Sprint.md, Reading-Note.md
-│   ├── Formation.md, MR-Review.md, GitLab Issue.md
-│   ├── Project-Dashboard.md, Release.md, Environment.md
-├── scripts/                   → 7 scripts QuickAdd génériques
-│   ├── git-helpers.js            (config projets à adapter)
-│   ├── import-gitlab-issue.js
-│   ├── sync-branch.js
-│   ├── generate-mr-message.js
-│   ├── standup-clipboard.js
-│   ├── auto-archive.js
-│   └── log-formation.js
+├── README.md                  → Guide d'installation
+├── Documentation Vault.md     → Documentation complète
+├── Partager le Vault.md       → Guide de partage et contribution
+├── Vault Settings.md          → Page admin des modules
+├── templates/                 → 18 templates (sections conditionnelles)
+├── scripts/                   → 7 scripts QuickAdd
 └── config/                    → Config Obsidian de référence
-    └── obsidian-settings.json
 ```
 
 ### Comment partager
 
-1. Copier le dossier `08 - Starter Kit/` et l'envoyer au collègue
-2. Le collègue suit le `README.md` étape par étape
-3. Il adapte `git-helpers.js` avec ses propres projets
-4. Il configure son token GitLab
-5. Il met à jour les listes de projets dans les templates (suggester)
+1. Envoyer le lien du repo : `https://github.com/Kekoeur/StarterPack-ObsidianVault`
+2. Le collègue clone et suit le `README.md`
+3. Il ouvre `Vault Settings.md` pour activer/désactiver les modules
+4. Il adapte `git-helpers.js` avec ses projets
+
+### Synchronisation bidirectionnelle
+
+- **Pull** : `git pull` dans le repo → mis à jour dans le vault via le junction
+- **Push** : modifier dans le vault → `git commit + push` depuis le repo
+- **Script** : `07 - Config/scripts/sync-starterpack.bat` pour synchroniser les templates périodiques
+
+Voir `Partager le Vault.md` pour le guide complet.
 
 ### Ce qui est générique vs personnel
 
@@ -386,6 +413,7 @@ Le dossier `08 - Starter Kit/` contient tout le nécessaire pour qu'un collègue
 |---------|-----------|----------|
 | Templates | ✅ | Listes de projets dans les `suggester` |
 | Scripts | ✅ | Objet `PROJECTS` dans `git-helpers.js` |
+| Vault Settings | ✅ | Toggles selon tes besoins |
 | Config | ✅ | Token GitLab, chemins locaux |
 | Dashboard/Home | ❌ | À créer selon ses besoins |
 | Contenu des notes | ❌ | Personnel |
