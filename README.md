@@ -12,7 +12,7 @@ git clone https://github.com/Kekoeur/StarterPack-ObsidianVault.git
 
 # 2. Lancer le script d'installation
 cd StarterPack-ObsidianVault
-install.bat
+node install.js
 ```
 
 Le script :
@@ -38,7 +38,7 @@ Quand le starter pack est mis à jour (nouveaux templates, scripts, dossiers) :
 
 ```bash
 cd StarterPack-ObsidianVault
-update-vault.bat
+node update-vault.js
 ```
 
 Le script :
@@ -72,8 +72,8 @@ Le fichier [`Vault Settings.md`](Vault%20Settings.md) contient des **toggles Met
 ## 📦 Contenu
 
 ```
-├── install.bat             → Script d'installation (crée un vault complet)
-├── update-vault.bat        → Script de mise à jour (pull + sync dans le vault)
+├── install.js              → Script d'installation cross-platform (Node.js)
+├── update-vault.js         → Script de mise à jour cross-platform (Node.js)
 ├── vault-structure/        → Structure de dossiers PARA + Journal
 │   ├── 00 - Dashboard/
 │   ├── 01 - Projects/ (Pro + Perso)
