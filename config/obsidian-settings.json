@@ -1,0 +1,49 @@
+{
+  "community-plugins": [
+    "templater-obsidian",
+    "dataview",
+    "obsidian-tasks-plugin",
+    "table-editor-obsidian",
+    "calendar",
+    "obsidian-git",
+    "homepage",
+    "heatmap-calendar",
+    "buttons",
+    "metaedit",
+    "quickadd",
+    "obsidian-meta-bind-plugin"
+  ],
+  "core-plugins": {
+    "file-explorer": true,
+    "global-search": true,
+    "switcher": true,
+    "graph": true,
+    "backlink": true,
+    "tag-pane": true,
+    "daily-notes": true,
+    "templates": true,
+    "command-palette": true,
+    "outline": true,
+    "word-count": true,
+    "file-recovery": true
+  },
+  "daily-notes": {
+    "folder": "04 - Journal/Daily",
+    "template": "06 - Templates/Daily",
+    "format": "[Daily - ]YYYY-MM-DD"
+  },
+  "templates": {
+    "folder": "06 - Templates"
+  },
+  "app": {
+    "alwaysUpdateLinks": true
+  },
+  "notes": [
+    "Ces fichiers JSON doivent être placés dans le dossier .obsidian/ de votre vault.",
+    "community-plugins.json → liste des plugins à installer",
+    "core-plugins.json → plugins natifs à activer",
+    "daily-notes.json → config des daily notes",
+    "templates.json → dossier des templates",
+    "app.json → config générale"
+  ]
+}
