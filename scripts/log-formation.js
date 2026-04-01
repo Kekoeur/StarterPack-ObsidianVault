@@ -11,6 +11,7 @@
 module.exports = async (params) => {
   const { app, quickAddApi } = params;
 
+  // Trouver les formations actives
   const formations = app.vault.getMarkdownFiles().filter(f => {
     const meta = app.metadataCache.getFileCache(f);
     return meta?.frontmatter?.type === "formation" && meta?.frontmatter?.status !== "completed";
@@ -21,6 +22,7 @@ module.exports = async (params) => {
     return;
   }
 
+  // Sélectionner la formation
   const names = formations.map(f => {
     const meta = app.metadataCache.getFileCache(f);
     return meta?.frontmatter?.name || f.basename;
@@ -36,6 +38,7 @@ module.exports = async (params) => {
     return;
   }
 
+  // Demander l'avancement pour chaque axe
   const updates = [];
   for (const track of progress) {
     const pct = track.total > 0 ? Math.round((track.current / track.total) * 100) : 0;
@@ -55,8 +58,10 @@ module.exports = async (params) => {
     return;
   }
 
+  // Mettre à jour le frontmatter
   let content = await app.vault.read(selected);
   for (const u of updates) {
+    // Remplacer current dans le bloc YAML pour le bon label
     const regex = new RegExp(
       `(- label: "${u.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"\\s*\\n\\s*current: )${u.old}`,
       "m"
@@ -64,6 +69,7 @@ module.exports = async (params) => {
     content = content.replace(regex, `$1${u.new}`);
   }
 
+  // Mettre à jour le status si pas encore in_progress
   if (meta?.frontmatter?.status === "not_started") {
     content = content.replace(/status: not_started/, "status: in_progress");
     const today = new Date().toISOString().split("T")[0];
@@ -72,6 +78,7 @@ module.exports = async (params) => {
 
   await app.vault.modify(selected, content);
 
+  // Construire le résumé pour le daily
   const formationName = meta?.frontmatter?.name || selected.basename;
   const summary = updates.map(u => {
     const diff = u.new - u.old;
@@ -79,6 +86,7 @@ module.exports = async (params) => {
     return `${sign}${diff} ${u.label} (${u.new}/${u.total})`;
   }).join(", ");
 
+  // Trouver le daily du jour
   const today = new Date().toISOString().split("T")[0];
   const dailyFiles = app.vault.getMarkdownFiles().filter(f =>
     f.path.includes("04 - Journal/Daily") && f.basename === `Daily - ${today}`
@@ -87,8 +95,10 @@ module.exports = async (params) => {
   if (dailyFiles.length > 0) {
     const daily = dailyFiles[0];
     let dailyContent = await app.vault.read(daily);
+
     const logLine = `- [x] [[${selected.basename}]] ${summary} #formation`;
 
+    // Chercher "Sessions du jour" et ajouter après le premier "- [ ] #formation"
     const sessionsIdx = dailyContent.indexOf("### Sessions du jour");
     if (sessionsIdx !== -1) {
       const placeholder = "- [ ] #formation";
@@ -96,10 +106,12 @@ module.exports = async (params) => {
       if (placeholderIdx !== -1) {
         dailyContent = dailyContent.slice(0, placeholderIdx) + logLine + "\n" + dailyContent.slice(placeholderIdx);
       } else {
+        // Ajouter juste après "### Sessions du jour\n"
         const insertIdx = dailyContent.indexOf("\n", sessionsIdx) + 1;
         dailyContent = dailyContent.slice(0, insertIdx) + logLine + "\n" + dailyContent.slice(insertIdx);
       }
     } else {
+      // Fallback : chercher la section formation
       const formIdx = dailyContent.indexOf("## 📚 Formation du jour");
       if (formIdx !== -1) {
         const nextSection = dailyContent.indexOf("\n---", formIdx);

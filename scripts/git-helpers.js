@@ -3,31 +3,50 @@
 // Utilisé par : import-gitlab-issue.js,
 //               sync-branch.js,
 //               generate-mr-message.js
-//
-// ⚠️ ADAPTER les projets ci-dessous à votre configuration
 // ═══════════════════════════════════════════
 
 const PROJECTS = {
-  // ═══ EXEMPLE — Remplacer par vos projets ═══
-  "Mon-Projet-Pro": {
-    host: "gitlab.example.com",           // Hôte GitLab (gitlab.com, gitlab.entreprise.com)
-    gitlabPath: "group/mon-projet-pro",   // Chemin GitLab (group/project)
-    localPath: "C:\\Users\\MOI\\dev\\mon-projet-pro",  // Chemin local du repo
-    vaultPath: "01 - Projects/Pro/Mon-Projet-Pro",     // Chemin dans le vault
-    branchFolder: "BRANCHES"              // Sous-dossier pour les notes de branches
+  "UI-VEL": {
+    host: "gitlab.puydufou.com",
+    gitlabPath: "vel-v3/front/ui-vel",
+    localPath: "C:\\Users\\cgauthier\\Documents\\Front\\ui-vel",
+    vaultPath: "01 - Projects/Pro/PdF/UI-VEL",
+    branchFolder: "BRANCH"
   },
-  "Mon-Projet-Perso": {
+  "RESERVATIONS-API": {
+    host: "gitlab.puy-du-fou.com",
+    gitlabPath: "pdf/reservations-api",
+    localPath: "C:\\Users\\cgauthier\\Documents\\Back\\reservations-api",
+    vaultPath: "01 - Projects/Pro/PdF/RESERVATIONS-API",
+    branchFolder: "MERGE"
+  },
+  "Blackout": {
     host: "gitlab.com",
-    gitlabPath: "MOI/mon-projet-perso",
-    localPath: "C:\\Users\\MOI\\dev\\mon-projet-perso",
-    vaultPath: "01 - Projects/Perso/Mon-Projet-Perso",
-    branchFolder: "BRANCHES"
+    gitlabPath: "MOI/blackout",
+    localPath: "C:\\Users\\cgauthier\\dev\\blackout",
+    vaultPath: "01 - Projects/Perso/Blackout",
+    branchFolder: "04 - Branches"
+  },
+  "TrackCoach": {
+    host: "gitlab.com",
+    gitlabPath: "MOI/trackcoach",
+    localPath: "C:\\Users\\cgauthier\\dev\\trackcoach",
+    vaultPath: "01 - Projects/Perso/TrackCoach",
+    branchFolder: "08 - Branches"
+  },
+  "MyHeroes": {
+    host: "gitlab.com",
+    gitlabPath: "MOI/myheroes",
+    localPath: "C:\\Users\\cgauthier\\dev\\myheroes",
+    vaultPath: "01 - Projects/Perso/MyHeroes",
+    branchFolder: "04 - Branches"
   }
 };
 
 async function getGitLabToken() {
   const { exec } = require("child_process");
   return new Promise((resolve, reject) => {
+    // Windows: utilise type au lieu de cat
     const cmd = process.platform === "win32"
       ? 'type "%USERPROFILE%\\.obsidian-secrets\\gitlab-token"'
       : "cat ~/.obsidian-secrets/gitlab-token";
@@ -44,10 +63,7 @@ async function getGitLabToken() {
 async function gitCommand(localPath, command) {
   const { exec } = require("child_process");
   return new Promise((resolve, reject) => {
-    const fullCmd = process.platform === "win32"
-      ? `cd /d "${localPath}" && ${command}`
-      : `cd "${localPath}" && ${command}`;
-    exec(fullCmd, { maxBuffer: 1024 * 1024 * 10 }, (err, stdout, stderr) => {
+    exec(command, { cwd: localPath, maxBuffer: 1024 * 1024 * 10, shell: true }, (err, stdout, stderr) => {
       if (err && !stdout) {
         reject(stderr || err.message);
         return;

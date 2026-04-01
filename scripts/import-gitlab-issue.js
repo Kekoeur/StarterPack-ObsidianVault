@@ -1,16 +1,21 @@
 // ═══════════════════════════════════════════
 // QuickAdd Macro : Import GitLab Issue
 // Ctrl+P → "QuickAdd: Import GitLab Issue"
+// OU bouton dans Daily/Branch
 // ═══════════════════════════════════════════
-
-const { PROJECTS, getGitLabToken, gitlabApiCall } = require("./git-helpers.js");
 
 module.exports = async (params) => {
   const { app, quickAddApi } = params;
 
+  const path = require("path");
+  const vaultPath = app.vault.adapter.basePath || app.vault.adapter.getBasePath();
+  const helpersPath = path.join(vaultPath, "07 - Config", "scripts", "git-helpers.js");
+  try { delete require.cache[helpersPath]; } catch(e) {}
+  const { PROJECTS, getGitLabToken, gitlabApiCall } = require(helpersPath);
+
   const issueUrl = await quickAddApi.inputPrompt(
     "🔗 URL de l'issue GitLab",
-    "https://gitlab.com/group/project/-/issues/123"
+    "https://gitlab.puy-du-fou.com/pdf/ui-vel/-/issues/424"
   );
   if (!issueUrl) return;
 

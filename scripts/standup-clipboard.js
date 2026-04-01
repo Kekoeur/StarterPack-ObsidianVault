@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════
 // QuickAdd Macro : Standup Clipboard
 // Ctrl+P → "QuickAdd: Standup Clipboard"
+// OU bouton dans le Daily
 //
 // Copie le standup formaté dans le presse-papier :
 // - Ce que j'ai fait hier
@@ -15,9 +16,12 @@ module.exports = async (params) => {
   const today = moment().format("YYYY-MM-DD");
   const yesterday = moment().subtract(1, "day").format("YYYY-MM-DD");
 
+  // Trouver le daily d'hier
   const yesterdayFile = app.vault.getMarkdownFiles().find(
     (f) => f.name === `Daily - ${yesterday}.md`
   );
+
+  // Trouver le daily d'aujourd'hui
   const todayFile = app.vault.getMarkdownFiles().find(
     (f) => f.name === `Daily - ${today}.md`
   );
@@ -26,14 +30,19 @@ module.exports = async (params) => {
   let todayObjectives = [];
   let blockers = [];
 
+  // Extraire les tâches complétées d'hier
   if (yesterdayFile) {
     const content = await app.vault.read(yesterdayFile);
+
+    // Chercher les tâches cochées #pro
     const taskRegex = /- \[x\]\s+(.+?)(?:\n|$)/g;
     let match;
     while ((match = taskRegex.exec(content)) !== null) {
       const task = match[1].replace(/#\w+/g, "").trim();
       if (task) completedYesterday.push(task);
     }
+
+    // Chercher la section "Complété aujourd'hui"
     const completedMatch = content.match(
       /## 🏁 Complété aujourd'hui[\s\S]*?### Pro\n([\s\S]*?)(?=### Perso|\n---|\n##)/
     );
@@ -46,8 +55,11 @@ module.exports = async (params) => {
     }
   }
 
+  // Extraire les objectifs d'aujourd'hui
   if (todayFile) {
     const content = await app.vault.read(todayFile);
+
+    // Chercher les tâches non-cochées #pro dans Must Do et Should Do
     const mustDoMatch = content.match(
       /### 🔴 Must Do[\s\S]*?(?=### 🟡|### 🟢|\n---|\n##)/
     );
@@ -70,6 +82,7 @@ module.exports = async (params) => {
     todayObjectives.push(...extractTasks(mustDoMatch));
     todayObjectives.push(...extractTasks(shouldDoMatch));
 
+    // Chercher les blockers
     const blockerMatch = content.match(
       /## 🔥 Blockers[\s\S]*?(?=\n---|\n##)/
     );
@@ -83,14 +96,17 @@ module.exports = async (params) => {
     }
   }
 
+  // Formater le standup
   const yesterdayText =
     completedYesterday.length > 0
       ? completedYesterday.map((t) => `  • ${t}`).join("\n")
       : "  • (rien de noté)";
+
   const todayText =
     todayObjectives.length > 0
       ? todayObjectives.map((t) => `  • ${t}`).join("\n")
       : "  • (objectifs pas encore définis)";
+
   const blockerText =
     blockers.length > 0
       ? blockers.map((t) => `  ⚠️ ${t}`).join("\n")

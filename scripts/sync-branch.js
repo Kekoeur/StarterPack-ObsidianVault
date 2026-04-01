@@ -1,12 +1,29 @@
 // ═══════════════════════════════════════════
 // QuickAdd Macro : Sync Branch
 // Ctrl+P → "QuickAdd: Sync Branch"
+// OU bouton dans Daily/Branch
 // ═══════════════════════════════════════════
-
-const { PROJECTS, gitCommand } = require("./git-helpers.js");
 
 module.exports = async (params) => {
   const { app, quickAddApi } = params;
+  const logs = [];
+
+  const path = require("path");
+  const vaultPath = app.vault.adapter.basePath || app.vault.adapter.getBasePath();
+  const helpersPath = path.join(vaultPath, "07 - Config", "scripts", "git-helpers.js");
+  try { delete require.cache[helpersPath]; } catch(e) {}
+  const { PROJECTS, gitCommand } = require(helpersPath);
+
+  const writeLog = async () => {
+    const logContent = "# Sync Branch Log — " + new Date().toISOString() + "\n\n```\n" + logs.join("\n") + "\n```\n";
+    const logPath = "07 - Config/cache/sync-log.md";
+    const existing = app.vault.getAbstractFileByPath(logPath);
+    if (existing) await app.vault.modify(existing, logContent);
+    else {
+      if (!app.vault.getAbstractFileByPath("07 - Config/cache")) await app.vault.createFolder("07 - Config/cache");
+      await app.vault.create(logPath, logContent);
+    }
+  };
 
   const projectNames = Object.keys(PROJECTS);
   const projectName = await quickAddApi.suggester(
@@ -16,16 +33,23 @@ module.exports = async (params) => {
   if (!projectName) return;
 
   const config = PROJECTS[projectName];
+  logs.push("Projet: " + projectName);
+  logs.push("localPath: " + config.localPath);
 
   let branchList;
   try {
-    await gitCommand(config.localPath, "git fetch origin").catch(() => {});
+    logs.push("Fetch origin...");
+    await gitCommand(config.localPath, "git fetch origin").catch((e) => logs.push("fetch warning: " + e));
+    logs.push("Listing branches...");
     branchList = await gitCommand(
       config.localPath,
       'git branch --list --format="%(refname:short)"'
     );
+    logs.push("Branches trouvées: " + branchList.split("\n").length);
   } catch (e) {
-    new Notice(`❌ Erreur git : ${e}`);
+    logs.push("❌ Erreur git branch list: " + e);
+    await writeLog();
+    new Notice(`❌ Erreur git — voir 07 - Config/cache/sync-log.md`);
     return;
   }
 
@@ -41,6 +65,7 @@ module.exports = async (params) => {
 
   const branch = await quickAddApi.suggester(branches, branches);
   if (!branch) return;
+  logs.push("Branche sélectionnée: " + branch);
 
   const today = new Date().toISOString().split("T")[0];
   const timeNow = new Date().toTimeString().split(" ")[0].substring(0, 5);
@@ -49,32 +74,42 @@ module.exports = async (params) => {
   let commits = "", diffStat = "", diffFiles = "", diffContent = "";
 
   try {
+    logs.push("Recherche base branch...");
     const baseBranch = await gitCommand(
       config.localPath,
       'git symbolic-ref refs/remotes/origin/HEAD 2>nul'
     ).then(r => r.replace("refs/remotes/origin/", "")).catch(() => "master");
+    logs.push("Base branch: " + baseBranch);
 
+    logs.push('Commande: git log ' + baseBranch + '.."' + branch + '"');
     commits = await gitCommand(
       config.localPath,
-      `git log ${baseBranch}..${branch} --pretty=format:"%h|%ad|%s|%an" --date=short`
-    ).catch(() => "");
+      `git log ${baseBranch}.."${branch}" --pretty=format:"%h|%ad|%s|%an" --date=short`
+    ).catch((e) => { logs.push("commits error: " + e); return ""; });
+    logs.push("Commits: " + (commits ? commits.split("\n").length + " lignes" : "vide"));
 
+    logs.push('Commande: git diff ' + baseBranch + '..."' + branch + '" --shortstat');
     diffStat = await gitCommand(
       config.localPath,
-      `git diff ${baseBranch}...${branch} --shortstat`
-    ).catch(() => "");
+      `git diff ${baseBranch}..."${branch}" --shortstat`
+    ).catch((e) => { logs.push("diffStat error: " + e); return ""; });
+    logs.push("DiffStat: " + (diffStat || "vide"));
 
     diffFiles = await gitCommand(
       config.localPath,
-      `git diff ${baseBranch}...${branch} --name-status`
-    ).catch(() => "");
+      `git diff ${baseBranch}..."${branch}" --name-status`
+    ).catch((e) => { logs.push("diffFiles error: " + e); return ""; });
+    logs.push("DiffFiles: " + (diffFiles ? diffFiles.split("\n").length + " fichiers" : "vide"));
 
     diffContent = await gitCommand(
       config.localPath,
-      `git diff ${baseBranch}...${branch}`
-    ).catch(() => "");
+      `git diff ${baseBranch}..."${branch}"`
+    ).catch((e) => { logs.push("diffContent error: " + e); return ""; });
+    logs.push("DiffContent: " + (diffContent ? diffContent.length + " chars" : "vide"));
   } catch (e) {
-    new Notice(`❌ Erreur git : ${e}`);
+    logs.push("❌ Erreur git globale: " + e);
+    await writeLog();
+    new Notice(`❌ Erreur git — voir 07 - Config/cache/sync-log.md`);
     return;
   }
 
@@ -97,6 +132,7 @@ module.exports = async (params) => {
     })
     .join("\n");
 
+  // Chercher la note existante
   const searchFolder = `${config.vaultPath}/${config.branchFolder}`;
   const branchSlug = branch.replace(/\//g, "-");
   let existingNote = null;
@@ -163,6 +199,8 @@ ${filesFormatted || "> Aucun fichier modifié"}
 
     await app.vault.modify(existingNote, content);
     await app.workspace.openLinkText(existingNote.path, "");
+    logs.push("✅ Note existante mise à jour");
+    await writeLog();
     new Notice(`✅ "${branch}" synchronisée — ${commitCount} commits`);
 
   } else {
@@ -214,6 +252,40 @@ color green
 \`\`\`
 ^button-generate-mr
 
+\`\`\`button
+name ⚡ Changer le Statut
+type command
+action MetaEdit: Run MetaEdit
+color purple
+\`\`\`
+^button-change-status
+
+---
+
+## 📊 Statut : \`= this.status\`
+
+> **Flow :** 🔵 LOCAL → ⏳ MERGE_PENDING → 👀 MERGE_REVIEW → 🔄 CHANGES_REQUESTED → 🧪 DEV → 🧪 STG → 🚀 PROD → 🔒 CLOSED
+
+---
+
+## ✅ Checklist
+
+- [ ] Développement terminé
+- [ ] Tests unitaires passent
+- [ ] Review demandée
+- [ ] Review approuvée
+- [ ] Merge request créée
+- [ ] Déployé en PROD
+
+---
+
+## 🔀 Modifications
+
+### ${timestamp} — Sync initiale
+
+**Commits depuis master :** ${commitCount}
+**Stats :** ${diffStat || "—"}
+
 ---
 
 ## 📊 Historique des commits
@@ -251,6 +323,8 @@ ${filesFormatted || "> Aucun fichier modifié"}
     const filePath = `${searchFolder}/${branchSlug}.md`;
     await app.vault.create(filePath, newContent);
     await app.workspace.openLinkText(filePath, "");
+    logs.push("✅ Nouvelle note créée: " + filePath);
+    await writeLog();
     new Notice(`✅ Note créée pour "${branch}" — ${commitCount} commits`);
   }
 

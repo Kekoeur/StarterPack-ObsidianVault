@@ -14,6 +14,7 @@ module.exports = async (params) => {
   const cutoff = moment().subtract(30, "days").format("YYYY-MM-DD");
   const archiveFolder = "05 - Archive/Branches";
 
+  // Trouver toutes les notes branch-doc CLOSED > 30 jours
   const toArchive = [];
   for (const file of app.vault.getMarkdownFiles()) {
     const meta = app.metadataCache.getFileCache(file);
@@ -37,6 +38,7 @@ module.exports = async (params) => {
   );
   if (!confirm) return;
 
+  // Créer le dossier d'archive si nécessaire
   if (!app.vault.getAbstractFileByPath(archiveFolder)) {
     await app.vault.createFolder(archiveFolder);
   }
