@@ -139,8 +139,8 @@ const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
 dv.paragraph(`**Progression :** ${done}/${total} KR complétés (${pct}%)`);
 
-const bar = "█".repeat(Math.round(pct / 5)) + "░".repeat(20 - Math.round(pct / 5));
-dv.paragraph(`\`${bar}\` ${pct}%`);
+const bar = `<div style="background:#e0e0e0;border-radius:8px;height:14px;width:200px;display:inline-block"><div style="background:linear-gradient(90deg,#2196f3,#64b5f6);height:100%;border-radius:8px;width:${pct}%"></div></div>`;
+dv.paragraph(bar + ` ${pct}%`);
 ```
 
 ---
@@ -205,8 +205,8 @@ if (formations.length === 0) {
     const progress = f.progress || [];
     const rows = progress.map(t => {
       const pct = t.total > 0 ? Math.round((t.current / t.total) * 100) : 0;
-      const bar = "█".repeat(Math.round(pct / 5)) + "░".repeat(20 - Math.round(pct / 5));
-      return [t.label, `\`${bar}\``, `${t.current}/${t.total}`, `${pct}%`];
+      const bar = `<div style="background:#e0e0e0;border-radius:8px;height:14px;width:160px;display:inline-block"><div style="background:linear-gradient(90deg,#4caf50,#81c784);height:100%;border-radius:8px;width:${pct}%"></div></div>`;
+      return [t.label, bar, `${t.current}/${t.total}`, `${pct}%`];
     });
     const statusIcon = f.status === "completed" ? "✅" : f.status === "in_progress" ? "🔵" : "⬜";
     dv.header(4, `${statusIcon} ${f.file.link} — ${f.platform || ""} (${f.category || ""})`);

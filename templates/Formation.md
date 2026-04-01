@@ -8,6 +8,7 @@ const category = await tp.system.suggester(
 if (!category) return;
 const platform = await tp.system.prompt("Plateforme / Source (ex: Udemy, O'Reilly, AWS Skill Builder)", "") || "";
 
+// Multi-progression
 const tracks = [];
 let addMore = true;
 while (addMore) {
@@ -57,7 +58,7 @@ if (progress.length === 0) {
     const current = track.current || 0;
     const total = track.total || 1;
     const pct = Math.round((current / total) * 100);
-    const bar = "█".repeat(Math.round(pct / 5)) + "░".repeat(20 - Math.round(pct / 5));
+    const bar = `<div style="background:#e0e0e0;border-radius:8px;height:14px;width:160px;display:inline-block"><div style="background:linear-gradient(90deg,#4caf50,#81c784);height:100%;border-radius:8px;width:${pct}%"></div></div>`;
     rows.push([track.label, `\`${bar}\``, `${current}/${total}`, `${pct}%`]);
   }
   dv.table(["Axe", "Progression", "Avancée", "%"], rows);

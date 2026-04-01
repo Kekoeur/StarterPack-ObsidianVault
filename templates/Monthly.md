@@ -170,7 +170,7 @@ if (formations.length === 0) {
     const progress = f.progress || [];
     const rows = progress.map(t => {
       const pct = t.total > 0 ? Math.round((t.current / t.total) * 100) : 0;
-      const bar = "█".repeat(Math.round(pct / 5)) + "░".repeat(20 - Math.round(pct / 5));
+      const bar = `<div style="background:#e0e0e0;border-radius:8px;height:14px;width:160px;display:inline-block"><div style="background:linear-gradient(90deg,#4caf50,#81c784);height:100%;border-radius:8px;width:${pct}%"></div></div>`;
       return [t.label, `\`${bar}\``, `${t.current}/${t.total}`, `${pct}%`];
     });
     dv.header(4, `${f.file.link} — ${f.platform || ""} — ${f.status}`);
