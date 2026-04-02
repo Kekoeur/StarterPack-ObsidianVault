@@ -60,7 +60,7 @@ setTimeout(async () => {
   if (!file) return;
   let content = await app.vault.read(file);
   const removeSection = (marker) => {
-    const re = new RegExp(`\n*%%BEGIN_${marker}%%[\\s\\S]*?%%END_${marker}%%\n*`, 'g');
+    const re = new RegExp(`\n*%%BEGIN_${marker}%%[\s\S]*?%%END_${marker}%%\n*`, 'g');
     content = content.replace(re, '\n');
   };
   if (!cfg.energy) removeSection('ENERGY');
@@ -72,7 +72,8 @@ setTimeout(async () => {
   if (!cfg.routines) removeSection('ROUTINES');
   if (!cfg.standup) removeSection('STANDUP');
   if (!cfg.activity) removeSection('ACTIVITY');
-  content = content.replace(/%%(?:BEGIN|END)_\w+%%\n?/g, '');
+  content = content.replace(/\n*%%(?:BEGIN|END)_\w+%%\n*/g, '\n');
+  content = content.replace(/\n{3,}/g, '\n\n');
   await app.vault.modify(file, content);
 }, 500);
 -%>
@@ -93,20 +94,23 @@ tags: [daily]
 
 %%BEGIN_PROGRESSBAR%%
 
-> 📅 Mois :
-> ```progressbar
-> kind: manual
-> name: "Mois (<% dayOfMonth %>/<% daysInMonth %>)"
-> value: <% dayOfMonth %>
-> max: <% daysInMonth %>
-> ```
-> 📆 Année :
-> ```progressbar
-> kind: manual
-> name: "Année (<% dayOfYear %>/<% daysInYear %>)"
-> value: <% dayOfYear %>
-> max: <% daysInYear %>
-> ```
+📅 Mois :
+```progressbar
+kind: manual
+name: "Mois (<% dayOfMonth %>/<% daysInMonth %>)"
+value: <% dayOfMonth %>
+max: <% daysInMonth %>
+width: 100%
+```
+
+📆 Année :
+```progressbar
+kind: manual
+name: "Année (<% dayOfYear %>/<% daysInYear %>)"
+value: <% dayOfYear %>
+max: <% daysInYear %>
+width: 100%
+```
 
 %%END_PROGRESSBAR%%
 

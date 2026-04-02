@@ -68,21 +68,21 @@ Vault/
 │   ├── Pro/                 → Projets professionnels
 │   └── Perso/               → Projets personnels
 ├── 02 - Areas/              → Domaines de responsabilité (Meetings, 1on1, Sprints, Formations)
-├── 03 - Resources/          → Ressources (Skills, Reading List, CLI, Contacts)
-├── 04 - Journal/            → Notes périodiques (Daily, Weekly, Monthly, Quarterly)
+├── 03 - Resources/          → Ressources (Skills, Reading List, CLI, Contacts, Utility, Vault Export)
+├── 04 - Journal/            → Notes périodiques (Daily, Weekly, Monthly, Quarterly, Yearly)
 │   ├── Daily/YYYY/Www/      → Organisées par année et semaine
 │   ├── Weekly/              → Une note par semaine
 │   ├── Monthly/             → Une note par mois
 │   ├── Quarterly/           → Une note par trimestre (OKR)
 │   └── Yearly/              → Une note par année (bilan)
 ├── 05 - Archive/            → Notes archivées
-├── 05 - Tasks/              → Gestion des tâches
-├── 06 - Templates/          → Tous les templates (19 templates)
+├── 06 - Templates/          → Tous les templates (21 templates)
 ├── 07 - Config/             → Configuration, scripts QuickAdd, documentation technique
 │   ├── scripts/             → Scripts JS pour les macros QuickAdd
 │   ├── cache/               → Cache des diffs git (auto-généré)
 │   └── Vault Settings.md    → Page admin : activer/désactiver les modules
-└── 08 - Starter Kit/        → Kit de démarrage (junction vers repo GitHub)
+├── 08 - Starter Kit/        → Kit de démarrage (junction vers repo GitHub)
+└── 99 - Inbox/              → Notes temporaires / capture rapide
 ```
 
 ---
@@ -113,6 +113,7 @@ Vault/
 |--------|------|
 | **Homepage** | Ouvre automatiquement Home.md au lancement |
 | **Heatmap Calendar** | Heatmap d'activité style GitHub sur la page Home |
+| **ProgressBar** | Barres de progression inline dans le Daily |
 | **Table Editor** | Édition facilitée des tableaux markdown |
 | **Obsidian Git** | Synchronisation automatique du vault via Git |
 
@@ -207,16 +208,6 @@ Bilan annuel avec :
 
 ---
 
-*Note : la section Quarterly ci-dessous est conservée pour référence.*
-
-Contient les **OKR** (Objectifs + Key Results) avec :
-- Barre de progression automatique (% de KR complétés)
-- Goal Cascade : vue des objectifs mensuels alignés
-- Stats MR du trimestre (total, en PROD, en review)
-- Vue d'ensemble des formations (actives, terminées, stats sessions)
-
----
-
 ## 📚 Système de suivi des Formations
 
 ### Principe
@@ -300,7 +291,7 @@ Chaque macro est aussi accessible via des **boutons** dans les notes Daily, Bran
 
 ---
 
-## 📋 Templates disponibles (18)
+## 📋 Templates disponibles (21)
 
 ### Journal
 | Template | Usage |
@@ -330,7 +321,9 @@ Chaque macro est aussi accessible via des **boutons** dans les notes Daily, Bran
 | 1on1 | Notes de 1:1 manager avec suivi des demandes |
 | Contact | Fiche contact (reviewer, collègue, manager) |
 | Reading-Note | Fiche de lecture (article, doc) avec statut |
+| Project | Note de projet |
 | Project-Dashboard | Dashboard d'un projet avec roadmap et branches |
+| Auto-Setup | Setup automatisé d'un projet |
 
 ### Apprentissage
 | Template | Usage |
@@ -434,7 +427,7 @@ Le dossier `08 - Starter Kit/` est un **junction** (lien symbolique) vers le rep
 
 - **Pull** : `git pull` dans le repo → mis à jour dans le vault via le junction
 - **Push** : modifier dans le vault → `git commit + push` depuis le repo
-- **Script** : `07 - Config/scripts/sync-starterpack.bat` pour synchroniser les templates périodiques
+- **Script** : `07 - Config/scripts/sync-starterpack.js` pour synchroniser les templates périodiques
 
 Voir `Partager le Vault.md` pour le guide complet.
 

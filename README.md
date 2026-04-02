@@ -18,7 +18,7 @@ node install.js
 Le script :
 - Demande le chemin du vault à créer
 - Crée toute la structure de dossiers (PARA + Journal)
-- Copie les 19 templates, 7 scripts, Vault Settings, documentation
+- Copie les 21 templates, 7 scripts, Vault Settings, documentation
 - Crée un Home.md avec les instructions de démarrage
 - Propose de lier le starter pack pour les mises à jour futures
 
@@ -77,13 +77,14 @@ Le fichier [`Vault Settings.md`](Vault%20Settings.md) contient des **toggles Met
 ├── vault-structure/        → Structure de dossiers PARA + Journal
 │   ├── 00 - Dashboard/
 │   ├── 01 - Projects/ (Pro + Perso)
-│   ├── 02 - Areas/ (Pro/Meetings, Pro/1on1, Perso)
-│   ├── 03 - Resources/ (Contacts, Reading List, Skills)
+│   ├── 02 - Areas/ (Pro + Perso)
+│   ├── 03 - Resources/ (Contacts, Reading List, Skills, Utility, Vault Export)
 │   ├── 04 - Journal/ (Daily, Weekly, Monthly, Quarterly, Yearly)
-│   ├── 05 - Archive/, 05 - Tasks/
+│   ├── 05 - Archive/
 │   ├── 06 - Templates/
-│   └── 07 - Config/ (scripts, cache)
-├── templates/              → 19 templates Obsidian (sections conditionnelles)
+│   ├── 07 - Config/ (scripts, cache)
+│   └── 99 - Inbox/
+├── templates/              → 21 templates Obsidian (sections conditionnelles)
 │   ├── Daily.md            → Note quotidienne (progression, ultime, MoSCoW, routines, standup, activité)
 │   ├── Weekly.md           → Agrégation hebdomadaire (TIL, stats, formations)
 │   ├── Monthly.md          → Objectifs mensuels + habitudes + formations
@@ -91,9 +92,10 @@ Le fichier [`Vault Settings.md`](Vault%20Settings.md) contient des **toggles Met
 │   ├── Yearly.md           → Bilan annuel + objectifs long terme
 │   ├── Branch.md           → Suivi branche git (boutons statut 1 clic)
 │   ├── Formation.md        → Suivi formation (progression multi-axes)
+│   ├── Project.md, Project-Dashboard.md → Projets
 │   ├── Meeting.md, 1on1.md, Sprint.md, Incident.md
 │   ├── MR-Review.md, GitLab Issue.md, Error-Entry.md
-│   ├── Contact.md, Reading-Note.md, Project-Dashboard.md
+│   ├── Contact.md, Reading-Note.md, Auto-Setup.md
 │   └── Release.md, Environment.md
 ├── scripts/                → 7 scripts QuickAdd
 │   ├── git-helpers.js      → Module partagé (config projets — À ADAPTER)
@@ -123,6 +125,7 @@ Le fichier [`Vault Settings.md`](Vault%20Settings.md) contient des **toggles Met
 ### Confort
 - **Homepage** — Page d'accueil au lancement
 - **Heatmap Calendar** — Heatmap d'activité
+- **ProgressBar** — Barres de progression inline
 - **Table Editor** — Édition tableaux
 - **Obsidian Git** — Synchronisation Git
 
@@ -177,7 +180,7 @@ git add -A && git commit -m "feat: description" && git push
 # Ouvrir une Pull Request sur GitHub
 ```
 
-Les utilisateurs récupèrent les changements avec `update-vault.bat`.
+Les utilisateurs récupèrent les changements avec `node update-vault.js`.
 
 ## 📖 Documentation
 

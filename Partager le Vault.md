@@ -26,7 +26,7 @@ git clone https://github.com/Kekoeur/StarterPack-ObsidianVault.git
 
 ### Ce qui est inclus
 
-- 18 templates génériques (sans données perso)
+- 21 templates génériques (sans données perso)
 - 7 scripts QuickAdd (avec projets placeholder)
 - Config Obsidian de référence
 - Page de paramétrage (Vault Settings)
@@ -114,7 +114,7 @@ git commit -m "feat: mise à jour templates périodiques"
 git push
 ```
 
-Ou utiliser le script `07 - Config/scripts/sync-starterpack.bat` qui fait tout ça automatiquement.
+Ou utiliser le script `07 - Config/scripts/sync-starterpack.js` qui fait tout ça automatiquement.
 
 ---
 

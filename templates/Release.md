@@ -1,7 +1,7 @@
 ---
 type: release
 version: null
-date: 2026-04-01
+date: 2026-04-02
 project: null
 environment: null
 tags: [release]

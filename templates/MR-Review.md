@@ -8,7 +8,7 @@ outcome: null
 tags: [review]
 ---
 
-# 👀 Review — Reading-Note
+# 👀 Review — 1on1
 
 > Projet : `= this.project` | Reviewer : `= this.reviewer` | Résultat : `= this.outcome`
 
